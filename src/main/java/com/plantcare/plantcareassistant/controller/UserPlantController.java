@@ -64,9 +64,9 @@ public class UserPlantController {
         return ResponseEntity.ok(newWateringEvent);
     }
 
-    /*@PostMapping("/{userPlantId}/notifications")
+    @PostMapping("/{userPlantId}/notifications")
     public ResponseEntity<?> toggleNotifications(@PathVariable Long userPlantId, @RequestParam boolean enable) {
-        UserPlant updatedUserPlant = userPlantService.toggleNotifications(userPlantId, enable);
-        return ResponseEntity.ok(updatedUserPlant);
-    }*/
+        PlantWateringHistory newWateringEvent = plantWateringHistoryService.toggleNotifications(userPlantId, enable);
+        return ResponseEntity.ok(newWateringEvent);
+    }
 }

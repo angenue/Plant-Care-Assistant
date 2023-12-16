@@ -43,7 +43,7 @@ public class PlantWateringHistoryService {
     return wateringHistoryRepository.findByUserPlantId(plantId);
     }
 
-    public PlantWateringHistory toggleWateringNotifications(Long plantWateringHistoryId, boolean enable) {
+    public PlantWateringHistory toggleNotifications(Long plantWateringHistoryId, boolean enable) {
         return wateringHistoryRepository.findById(plantWateringHistoryId)
                 .map(plantWateringHistory -> {
                     plantWateringHistory.setNotificationsEnabled(enable);
