@@ -36,8 +36,6 @@ public class UserPlantService {
                 .map(userPlant -> {
                     userPlant.setCustomName(updatedUserPlant.getCustomName());
                     userPlant.setPictureUrl(updatedUserPlant.getPictureUrl());
-                    userPlant.setLastWatered(updatedUserPlant.getLastWatered());
-                    userPlant.setNotificationsEnabled(updatedUserPlant.getNotificationsEnabled());
 
                     return userPlantRepository.save(userPlant);
                 }).orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + id));

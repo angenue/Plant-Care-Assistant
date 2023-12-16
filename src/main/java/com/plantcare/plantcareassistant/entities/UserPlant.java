@@ -26,9 +26,5 @@ public class UserPlant {
     private String apiPlantId;
     private String customName;
     private String pictureUrl;
-    private Boolean notificationsEnabled;
-
-    @Column(nullable = true)
-    private LocalDateTime lastWatered;
 }
 

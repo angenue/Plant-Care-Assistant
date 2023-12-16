@@ -23,5 +23,6 @@ public class PlantWateringHistory {
 
     private LocalDateTime wateringDate;
     private Double waterAmount;
+    private Boolean notificationsEnabled;
 }
 
