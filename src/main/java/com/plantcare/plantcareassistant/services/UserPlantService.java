@@ -47,11 +47,19 @@ public class UserPlantService {
         return userPlantRepository.save(userPlant);
     }
 
-    public UserPlant updateUserPlant(Long id, UserPlant updatedUserPlant) {
+    public UserPlant updateUserPlant(Long id, String newPicture) {
         return userPlantRepository.findById(id)
                 .map(userPlant -> {
-                    userPlant.setCustomName(updatedUserPlant.getCustomName());
-                    userPlant.setPictureUrl(updatedUserPlant.getPictureUrl());
+                    userPlant.setPictureUrl(newPicture);
+
+                    return userPlantRepository.save(userPlant);
+                }).orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + id));
+    }
+
+    public UserPlant updatePlantName(Long id, String newName) {
+        return userPlantRepository.findById(id)
+                .map(userPlant -> {
+                    userPlant.setPictureUrl(newName);
 
                     return userPlantRepository.save(userPlant);
                 }).orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + id));
