@@ -1,5 +1,6 @@
 package com.plantcare.plantcareassistant.controller;
 
+import com.plantcare.plantcareassistant.dto.UserPlantDto;
 import com.plantcare.plantcareassistant.dto.WateringEventDto;
 import com.plantcare.plantcareassistant.entities.PlantWateringHistory;
 import com.plantcare.plantcareassistant.entities.User;
@@ -7,6 +8,7 @@ import com.plantcare.plantcareassistant.entities.UserPlant;
 import com.plantcare.plantcareassistant.services.PlantWateringHistoryService;
 import com.plantcare.plantcareassistant.services.UserPlantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +29,14 @@ public class UserPlantController {
         this.userPlantService = userPlantService;
         this.plantWateringHistoryService = plantWateringHistoryService;
     }
+
+    //method for saving a plant
+    @PostMapping
+    public ResponseEntity<UserPlant> addUserPlant(@RequestBody UserPlantDto userPlantDto) {
+        UserPlant newUserPlant = userPlantService.addUserPlant(userPlantDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newUserPlant);
+    }
+
 
     //methods for displaying all the saved plants
     @GetMapping("/user/{userId}")
@@ -69,4 +79,26 @@ public class UserPlantController {
         PlantWateringHistory newWateringEvent = plantWateringHistoryService.toggleNotifications(userPlantId, enable);
         return ResponseEntity.ok(newWateringEvent);
     }
+
+    //methods for updating plant image and name
+    @PutMapping("/{userPlantId}/picture")
+    public ResponseEntity<UserPlant> updateUserPlantPicture(@PathVariable Long userPlantId, @RequestBody String newPicture) {
+        UserPlant updatedUserPlant = userPlantService.updateUserPlant(userPlantId, newPicture);
+        return ResponseEntity.ok(updatedUserPlant);
+    }
+
+    @PutMapping("/{userPlantId}/name")
+    public ResponseEntity<UserPlant> updatePlantName(@PathVariable Long userPlantId, @RequestBody String newName) {
+        UserPlant updatedUserPlant = userPlantService.updatePlantName(userPlantId, newName);
+        return ResponseEntity.ok(updatedUserPlant);
+    }
+
+    //method for deleting saved plant
+    @DeleteMapping("/{userPlantId}")
+    public ResponseEntity<?> deleteUserPlant(@PathVariable Long userPlantId) {
+        userPlantService.deleteUserPlant(userPlantId);
+        return ResponseEntity.ok().build();
+    }
+
+
 }
