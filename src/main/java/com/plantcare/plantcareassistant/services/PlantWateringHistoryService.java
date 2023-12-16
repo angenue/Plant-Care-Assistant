@@ -43,6 +43,16 @@ public class PlantWateringHistoryService {
     return wateringHistoryRepository.findByUserPlantId(plantId);
     }
 
+    public PlantWateringHistory toggleWateringNotifications(Long plantWateringHistoryId, boolean enable) {
+        return wateringHistoryRepository.findById(plantWateringHistoryId)
+                .map(plantWateringHistory -> {
+                    plantWateringHistory.setNotificationsEnabled(enable);
+                    return wateringHistoryRepository.save(plantWateringHistory);
+                }).orElseThrow(() -> new EntityNotFoundException("PlantWateringHistory not found with id " + plantWateringHistoryId));
+    }
+
+
+
     public void deleteWateringHistory(Long id) {
     wateringHistoryRepository.deleteById(id);
     }
