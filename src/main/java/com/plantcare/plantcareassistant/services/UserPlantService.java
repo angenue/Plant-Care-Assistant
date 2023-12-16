@@ -1,7 +1,10 @@
 package com.plantcare.plantcareassistant.services;
 
+import com.plantcare.plantcareassistant.dto.UserPlantDto;
+import com.plantcare.plantcareassistant.entities.User;
 import com.plantcare.plantcareassistant.entities.UserPlant;
 import com.plantcare.plantcareassistant.repository.UserPlantRepository;
+import com.plantcare.plantcareassistant.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,10 +15,12 @@ import java.util.List;
 public class UserPlantService {
 
     private final UserPlantRepository userPlantRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserPlantService(UserPlantRepository userPlantRepository) {
+    public UserPlantService(UserPlantRepository userPlantRepository, UserRepository userRepository) {
         this.userPlantRepository = userPlantRepository;
+        this.userRepository = userRepository;
     }
 
     public List<UserPlant> getAllUserPlantsByUserId(Long userId) {
@@ -27,7 +32,18 @@ public class UserPlantService {
                 .orElseThrow(() -> new EntityNotFoundException("Plant not found with id " + id));
     }
 
-    public UserPlant addUserPlant(UserPlant userPlant) {
+    public UserPlant addUserPlant(UserPlantDto userPlantDto) {
+        UserPlant userPlant = new UserPlant();
+
+        //retrieving user id
+        User user = userRepository.findById(userPlantDto.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + userPlantDto.getUserId()));
+
+        userPlant.setUser(user);
+        userPlant.setApiPlantId(userPlantDto.getApiPlantId());
+        userPlant.setCustomName(userPlantDto.getCustomName());
+        userPlant.setPictureUrl(userPlantDto.getPictureUrl());
+
         return userPlantRepository.save(userPlant);
     }
 
