@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PantListResponse {
+public class PlantListResponse {
     private List<Plant> plants;
     private int total;
 
@@ -24,4 +24,12 @@ public class PantListResponse {
     private int lastPage;
     private int from;
     private int to;
+
+    public List<Plant> getPlants() {
+        return plants;
+    }
+
+    public void setPlants(List<Plant> plants) {
+        this.plants = plants;
+    }
 }
