@@ -1,5 +1,6 @@
 package com.plantcare.plantcareassistant.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,5 +14,14 @@ import java.util.List;
 @AllArgsConstructor
 public class PantListResponse {
     private List<Plant> plants;
-    private String nextPageUrl;
+    private int total;
+
+    @JsonProperty("per_page")
+    private int perPage;
+    @JsonProperty("current_page")
+    private int currentPage;
+    @JsonProperty("last_page")
+    private int lastPage;
+    private int from;
+    private int to;
 }
