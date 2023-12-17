@@ -76,8 +76,8 @@ public class UserPlantController {
 
     @PostMapping("/{userPlantId}/notifications")
     public ResponseEntity<?> toggleNotifications(@PathVariable Long userPlantId, @RequestParam boolean enable) {
-        PlantWateringHistory newWateringEvent = plantWateringHistoryService.toggleNotifications(userPlantId, enable);
-        return ResponseEntity.ok(newWateringEvent);
+        UserPlant wateringNotif = plantWateringHistoryService.toggleNotifications(userPlantId, enable);
+        return ResponseEntity.ok(wateringNotif);
     }
 
     //methods for updating plant image and name

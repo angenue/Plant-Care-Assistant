@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface WateringHistoryRepository extends JpaRepository<PlantWateringHistory, Long>{
-    List<PlantWateringHistory> findByUserPlantId(Long plantId);
+    List<PlantWateringHistory> findByUserPlantIdOrderByWateringDateDesc(long  id);
 }

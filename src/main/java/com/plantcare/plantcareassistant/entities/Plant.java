@@ -43,6 +43,7 @@ public class Plant {
 
     private String imageUrl;
 
+
     public List<WaterRequirement> getDepthWaterRequirements() {
         List<WaterRequirement> requirements = new ArrayList<>();
         if (depthWaterRequirement.isArray()) {

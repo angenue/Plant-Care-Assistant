@@ -1,6 +1,8 @@
 package com.plantcare.plantcareassistant.entities;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+
 import jakarta.persistence.*;
 
 import lombok.*;
@@ -23,6 +25,5 @@ public class PlantWateringHistory {
 
     private LocalDateTime wateringDate;
     private Double waterAmount;
-    private Boolean notificationsEnabled;
 }
 

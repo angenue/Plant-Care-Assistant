@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -26,5 +27,10 @@ public class UserPlant {
     private String apiPlantId;
     private String customName;
     private String pictureUrl;
+
+    private Boolean notificationsEnabled;
+    private LocalTime notificationTime;
+    private int wateringFrequency; // Frequency in days
+    private String frequencyUnit; // "days", "weeks", "months"
 }
 
