@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,19 +48,6 @@ public class UserPlantController {
 
     //methods for when user clicks on a plant
 
-    //displays the watering log
-    @GetMapping("/{userPlantId}")
-    public ResponseEntity<?> getWateringLog(@PathVariable Long userPlantId) {
-        UserPlant userPlant = userPlantService.getUserPlantById(userPlantId);
-        List<PlantWateringHistory> wateringHistory = plantWateringHistoryService.getAllWateringHistoryByPlantId(userPlantId);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("userPlant", userPlant);
-        response.put("wateringHistory", wateringHistory);
-
-        return ResponseEntity.ok(response);
-    }
-
     //gets the plant info from api
     /*@GetMapping("/{userPlantId}/details")
     public ResponseEntity<?> getPlantDetails(@PathVariable Long userPlantId) {
@@ -74,6 +62,42 @@ public class UserPlantController {
         return ResponseEntity.ok(newWateringEvent);
     }
 
+    //displays the watering log
+    @GetMapping("/{userPlantId}")
+    public ResponseEntity<?> getWateringLog(@PathVariable Long userPlantId) {
+        UserPlant userPlant = userPlantService.getUserPlantById(userPlantId);
+        List<PlantWateringHistory> wateringHistory = plantWateringHistoryService.getAllWateringHistoryByPlantId(userPlantId);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("userPlant", userPlant);
+        response.put("wateringHistory", wateringHistory);
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Endpoint to update notification settings
+    @PutMapping("/{userPlantId}/notification-settings")
+    public ResponseEntity<UserPlant> updateNotificationSettings(@PathVariable Long userPlantId, @RequestBody UserPlantDto userPlantDto) {
+        UserPlant updatedUserPlant = plantWateringHistoryService.updateNotificationSettings(userPlantId, userPlantDto);
+        return ResponseEntity.ok(updatedUserPlant);
+    }
+
+    // Endpoint to update a watering log
+    @PutMapping("/watering-logs/{logId}")
+    public ResponseEntity<PlantWateringHistory> updateWateringLog(@PathVariable Long logId, @RequestBody LocalDateTime newWateringDateTime) {
+        PlantWateringHistory updatedLog = plantWateringHistoryService.updateWateringLog(logId, newWateringDateTime);
+        return ResponseEntity.ok(updatedLog);
+    }
+
+    // Endpoint to delete a watering history entry
+    @DeleteMapping("/watering-logs/{id}")
+    public ResponseEntity<?> deleteWateringHistory(@PathVariable Long id) {
+        plantWateringHistoryService.deleteWateringHistory(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    //methods regarding notifications
     @PostMapping("/{userPlantId}/notifications")
     public ResponseEntity<?> toggleNotifications(@PathVariable Long userPlantId, @RequestParam boolean enable) {
         UserPlant wateringNotif = plantWateringHistoryService.toggleNotifications(userPlantId, enable);
