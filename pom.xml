@@ -30,6 +30,14 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+			<dependency>
+				<groupId>com.konghq</groupId>
+				<artifactId>unirest-java</artifactId>
+				<version>3.14.2</version> <!-- Use the latest version -->
+			</dependency>
+
+
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
