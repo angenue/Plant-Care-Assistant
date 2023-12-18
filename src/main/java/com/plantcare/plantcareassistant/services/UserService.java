@@ -1,5 +1,6 @@
 package com.plantcare.plantcareassistant.services;
 
+import com.plantcare.plantcareassistant.dto.UserDto;
 import com.plantcare.plantcareassistant.entities.User;
 import com.plantcare.plantcareassistant.entities.UserPlant;
 import com.plantcare.plantcareassistant.repository.UserRepository;
@@ -20,11 +21,15 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User createUser(User user) {
-        if(isEmailTaken(user.getEmail())) {
+    public User createUser(UserDto userDto) {
+        User user = new User();
+        if(isEmailTaken(userDto.getEmail())) {
             throw new IllegalStateException("Email already taken");
         }
-        user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
+        // Check if passwords match
+        checkPasswordsMatch(userDto.getPasswordHash(), userDto.getConfirmPasswordHash());
+
+        user.setPasswordHash(passwordEncoder.encode(userDto.getPasswordHash()));
         return userRepository.save(user);
     }
 
@@ -37,8 +42,15 @@ public class UserService {
         return user;
     }
 
+    //for password confirmation during registration
+    private void checkPasswordsMatch(String password, String confirmPassword) {
+        if (!password.equals(confirmPassword)) {
+            throw new IllegalArgumentException("Passwords do not match");
+        }
+    }
+
     //checks if email is taken
-    public boolean isEmailTaken(String email) {
+    private boolean isEmailTaken(String email) {
         return userRepository.findByEmail(email).isPresent();
     }
 
