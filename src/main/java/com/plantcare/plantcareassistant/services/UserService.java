@@ -34,6 +34,7 @@ public class UserService {
         // Check if passwords match
         checkPasswordsMatch(userDto.getPasswordHash(), userDto.getConfirmPasswordHash());
 
+        user.setEmail(userDto.getEmail());
         user.setPasswordHash(passwordEncoder.encode(userDto.getPasswordHash()));
         return userRepository.save(user);
     }
