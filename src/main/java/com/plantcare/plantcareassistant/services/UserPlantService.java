@@ -7,6 +7,9 @@ import com.plantcare.plantcareassistant.repository.UserPlantRepository;
 import com.plantcare.plantcareassistant.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,11 +35,11 @@ public class UserPlantService {
                 .orElseThrow(() -> new EntityNotFoundException("Plant not found with id " + id));
     }
 
-    public UserPlant addUserPlant(UserPlantDto userPlantDto) {
+    public UserPlant addUserPlant(Long userId, UserPlantDto userPlantDto) {
         UserPlant userPlant = new UserPlant();
 
         //retrieving user id
-        User user = userRepository.findById(userPlantDto.getUserId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + userPlantDto.getUserId()));
 
         userPlant.setUser(user);
@@ -46,6 +49,8 @@ public class UserPlantService {
 
         return userPlantRepository.save(userPlant);
     }
+
+
 
     public UserPlant updateUserPlant(Long id, String newPicture) {
         return userPlantRepository.findById(id)

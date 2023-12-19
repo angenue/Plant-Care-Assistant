@@ -7,10 +7,13 @@ import com.plantcare.plantcareassistant.entities.User;
 import com.plantcare.plantcareassistant.entities.UserPlant;
 import com.plantcare.plantcareassistant.services.PlantWateringHistoryService;
 import com.plantcare.plantcareassistant.services.UserPlantService;
+import com.plantcare.plantcareassistant.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -24,25 +27,29 @@ public class UserPlantController {
 
     private final UserPlantService userPlantService;
     private final PlantWateringHistoryService plantWateringHistoryService;
+    private final UserService userService;
 
     @Autowired
-    public UserPlantController(UserPlantService userPlantService, PlantWateringHistoryService plantWateringHistoryService) {
+    public UserPlantController(UserPlantService userPlantService, PlantWateringHistoryService plantWateringHistoryService, UserService userService) {
         this.userPlantService = userPlantService;
         this.plantWateringHistoryService = plantWateringHistoryService;
+        this.userService = userService;
     }
 
     //method for saving a plant
     @PostMapping
     public ResponseEntity<UserPlant> addUserPlant(@RequestBody UserPlantDto userPlantDto) {
-        UserPlant newUserPlant = userPlantService.addUserPlant(userPlantDto);
+        Long currentUserId = getCurrentUserId(); // Method to get the authenticated user's ID
+        UserPlant newUserPlant = userPlantService.addUserPlant(currentUserId, userPlantDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUserPlant);
     }
 
 
     //methods for displaying all the saved plants
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<UserPlant>> getAllSavedPlants (@PathVariable Long userId) {
-        List<UserPlant> userPlants = userPlantService.getAllUserPlantsByUserId(userId);
+    @GetMapping("/user/plants")
+    public ResponseEntity<List<UserPlant>> getAllSavedPlants() {
+        Long currentUserId = getCurrentUserId();
+        List<UserPlant> userPlants = userPlantService.getAllUserPlantsByUserId(currentUserId);
         return ResponseEntity.ok(userPlants);
     }
 
@@ -122,6 +129,17 @@ public class UserPlantController {
     public ResponseEntity<?> deleteUserPlant(@PathVariable Long userPlantId) {
         userPlantService.deleteUserPlant(userPlantId);
         return ResponseEntity.ok().build();
+    }
+
+    // Utility method to get the current user's ID
+    private Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AccessDeniedException("User is not authenticated");
+        }
+        String userEmail = authentication.getName();
+        User user = userService.getUserByEmail(userEmail);
+        return user.getId();
     }
 
 
