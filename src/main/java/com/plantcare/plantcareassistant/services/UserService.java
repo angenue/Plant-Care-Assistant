@@ -6,11 +6,17 @@ import com.plantcare.plantcareassistant.entities.UserPlant;
 import com.plantcare.plantcareassistant.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder; //checks if the password matches the pw in the database
@@ -39,14 +45,14 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User loginUser(String email, String password) {
+    /*public User loginUser(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             throw new IllegalStateException("Invalid credentials");
         }
         return user;
-    }
+    }*/
 
     //for password confirmation during registration
     private void checkPasswordsMatch(String password, String confirmPassword) {
@@ -117,5 +123,13 @@ public class UserService {
             return "Passwords do not match";
         }
 
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPasswordHash(),
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
     }
 }
