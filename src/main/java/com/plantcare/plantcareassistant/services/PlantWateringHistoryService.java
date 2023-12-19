@@ -8,6 +8,7 @@ import com.plantcare.plantcareassistant.repository.UserPlantRepository;
 import com.plantcare.plantcareassistant.repository.WateringHistoryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -28,10 +29,14 @@ public class PlantWateringHistoryService {
         this.userPlantRepository = userPlantRepository;
     }
 
-    public PlantWateringHistory addWateringHistory(Long userPlantId, WateringEventDto wateringEventDto) {
+    public PlantWateringHistory addWateringHistory(Long userPlantId, WateringEventDto wateringEventDto, Long userId) {
         // First, retrieve the UserPlant by userPlantId
         UserPlant userPlant = userPlantRepository.findById(userPlantId)
                 .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id: " + userPlantId));
+
+        if (!userPlant.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to access this plant");
+        }
 
         // Create a new PlantWateringHistory entity from the DTO
         PlantWateringHistory newEvent = new PlantWateringHistory();
@@ -53,17 +58,29 @@ public class PlantWateringHistoryService {
     }
 
 
-    public List<PlantWateringHistory> getAllWateringHistoryByPlantId(Long plantId) {
+    public List<PlantWateringHistory> getAllWateringHistoryByPlantId(Long plantId, Long userId) {
+        UserPlant userPlant = userPlantRepository.findById(plantId)
+                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id: " + plantId));
+
+        if (!userPlant.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to access this plant");
+        }
     return wateringHistoryRepository.findByUserPlantIdOrderByWateringDateDesc(plantId);
     }
 
-    public UserPlant toggleNotifications(Long userPlantId, boolean enable) {
-        return userPlantRepository.findById(userPlantId)
-                .map(userPlant -> {
-                    userPlant.setNotificationsEnabled(enable);
-                    return userPlantRepository.save(userPlant);
-                }).orElseThrow(() -> new EntityNotFoundException("User plant not found with id " + userPlantId));
+    public UserPlant toggleNotifications(Long userPlantId, boolean enable, Long userId) {
+        UserPlant userPlant = userPlantRepository.findById(userPlantId)
+                .orElseThrow(() -> new EntityNotFoundException("User plant not found with id " + userPlantId));
+
+        // Verify that the userPlant belongs to the authenticated user
+        if (!userPlant.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to access this plant");
+        }
+
+        userPlant.setNotificationsEnabled(enable);
+        return userPlantRepository.save(userPlant);
     }
+
 
     //for notification and timer purposes
     private PlantWateringHistory fetchMostRecentWateringLog(Long userPlantId) {
@@ -102,9 +119,13 @@ public class PlantWateringHistoryService {
         };
     }
 
-    public UserPlant updateNotificationSettings(Long userPlantId, UserPlantDto userPlantDto) {
+    public UserPlant updateNotificationSettings(Long userPlantId, UserPlantDto userPlantDto, Long userId) {
         UserPlant userPlant = userPlantRepository.findById(userPlantId)
                 .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id: " + userPlantId));
+
+        if (!userPlant.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to access this plant");
+        }
 
         userPlant.setWateringFrequency(userPlantDto.getWateringFrequency());
         userPlant.setFrequencyUnit(userPlantDto.getFrequencyUnit());
@@ -115,17 +136,31 @@ public class PlantWateringHistoryService {
 
 
     //users can update the time and date of their entry
-    public PlantWateringHistory updateWateringLog(Long logId, LocalDateTime newWateringDateTime) {
+    public PlantWateringHistory updateWateringLog(Long logId, LocalDateTime newWateringDateTime, Long userId) {
         PlantWateringHistory log = wateringHistoryRepository.findById(logId)
                 .orElseThrow(() -> new EntityNotFoundException("WateringLog not found with id: " + logId));
 
-        log.setWateringDate(newWateringDateTime);
+        // Verify ownership
+        if (!log.getUserPlant().getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to access this watering log");
+        }
 
+        log.setWateringDate(newWateringDateTime);
         return wateringHistoryRepository.save(log);
     }
 
 
-    public void deleteWateringHistory(Long id) {
-    wateringHistoryRepository.deleteById(id);
+
+    public void deleteWateringHistory(Long id, Long userId) {
+        PlantWateringHistory log = wateringHistoryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("WateringLog not found with id: " + id));
+
+        // Verify ownership
+        if (!log.getUserPlant().getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to delete this watering log");
+        }
+
+        wateringHistoryRepository.deleteById(id);
     }
+
 }

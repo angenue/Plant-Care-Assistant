@@ -67,15 +67,17 @@ public class UserPlantController {
     //methods for the watering log
     @PostMapping("/{userPlantId}/watering")
     public ResponseEntity<?> addWateringEvent(@PathVariable Long userPlantId, @RequestBody WateringEventDto wateringEventDto) {
-        PlantWateringHistory newWateringEvent = plantWateringHistoryService.addWateringHistory(userPlantId, wateringEventDto);
+        Long currentUserId = getCurrentUserId(); // Method to get the authenticated user's ID
+        PlantWateringHistory newWateringEvent = plantWateringHistoryService.addWateringHistory(userPlantId, wateringEventDto, currentUserId);
         return ResponseEntity.ok(newWateringEvent);
     }
 
     //displays the watering log
     @GetMapping("/{userPlantId}")
     public ResponseEntity<?> getWateringLog(@PathVariable Long userPlantId) {
+        Long currentUserId = getCurrentUserId();
         UserPlant userPlant = userPlantService.getUserPlantById(userPlantId);
-        List<PlantWateringHistory> wateringHistory = plantWateringHistoryService.getAllWateringHistoryByPlantId(userPlantId);
+        List<PlantWateringHistory> wateringHistory = plantWateringHistoryService.getAllWateringHistoryByPlantId(userPlantId, currentUserId);
 
         Map<String, Object> response = new HashMap<>();
         response.put("userPlant", userPlant);
@@ -87,42 +89,48 @@ public class UserPlantController {
     // Endpoint to update notification settings
     @PutMapping("/{userPlantId}/notification-settings")
     public ResponseEntity<UserPlant> updateNotificationSettings(@PathVariable Long userPlantId, @RequestBody UserPlantDto userPlantDto) {
-        UserPlant updatedUserPlant = plantWateringHistoryService.updateNotificationSettings(userPlantId, userPlantDto);
+        Long currentUserId = getCurrentUserId();
+        UserPlant updatedUserPlant = plantWateringHistoryService.updateNotificationSettings(userPlantId, userPlantDto, currentUserId);
         return ResponseEntity.ok(updatedUserPlant);
     }
 
     // Endpoint to update a watering log
     @PutMapping("/watering-logs/{logId}")
     public ResponseEntity<PlantWateringHistory> updateWateringLog(@PathVariable Long logId, @RequestBody LocalDateTime newWateringDateTime) {
-        PlantWateringHistory updatedLog = plantWateringHistoryService.updateWateringLog(logId, newWateringDateTime);
+        Long currentUserId = getCurrentUserId();
+        PlantWateringHistory updatedLog = plantWateringHistoryService.updateWateringLog(logId, newWateringDateTime, currentUserId);
         return ResponseEntity.ok(updatedLog);
     }
 
-    // Endpoint to delete a watering history entry
     @DeleteMapping("/watering-logs/{id}")
     public ResponseEntity<?> deleteWateringHistory(@PathVariable Long id) {
-        plantWateringHistoryService.deleteWateringHistory(id);
+        Long currentUserId = getCurrentUserId();
+        plantWateringHistoryService.deleteWateringHistory(id, currentUserId);
         return ResponseEntity.noContent().build();
     }
+
 
 
     //methods regarding notifications
     @PostMapping("/{userPlantId}/notifications")
     public ResponseEntity<?> toggleNotifications(@PathVariable Long userPlantId, @RequestParam boolean enable) {
-        UserPlant wateringNotif = plantWateringHistoryService.toggleNotifications(userPlantId, enable);
+        Long currentUserId = getCurrentUserId();
+        UserPlant wateringNotif = plantWateringHistoryService.toggleNotifications(userPlantId, enable, currentUserId);
         return ResponseEntity.ok(wateringNotif);
     }
 
     //methods for updating plant image and name
     @PutMapping("/{userPlantId}/picture")
     public ResponseEntity<UserPlant> updateUserPlantPicture(@PathVariable Long userPlantId, @RequestBody String newPicture) {
-        UserPlant updatedUserPlant = userPlantService.updateUserPlant(userPlantId, newPicture);
+        Long currentUserId = getCurrentUserId();
+        UserPlant updatedUserPlant = userPlantService.updateUserPlantPicture(userPlantId, currentUserId, newPicture);
         return ResponseEntity.ok(updatedUserPlant);
     }
 
     @PutMapping("/{userPlantId}/name")
     public ResponseEntity<UserPlant> updatePlantName(@PathVariable Long userPlantId, @RequestBody String newName) {
-        UserPlant updatedUserPlant = userPlantService.updatePlantName(userPlantId, newName);
+        Long currentUserId = getCurrentUserId();
+        UserPlant updatedUserPlant = userPlantService.updatePlantName(userPlantId, currentUserId, newName);
         return ResponseEntity.ok(updatedUserPlant);
     }
 

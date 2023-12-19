@@ -52,22 +52,31 @@ public class UserPlantService {
 
 
 
-    public UserPlant updateUserPlant(Long id, String newPicture) {
-        return userPlantRepository.findById(id)
-                .map(userPlant -> {
-                    userPlant.setPictureUrl(newPicture);
+    public UserPlant updateUserPlantPicture(Long userPlantId, Long userId, String newPicture) {
+        UserPlant userPlant = userPlantRepository.findById(userPlantId)
+                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + userPlantId));
 
-                    return userPlantRepository.save(userPlant);
-                }).orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + id));
+        // Check if the userPlant belongs to the authenticated user
+        if (!userPlant.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to access this plant");
+        }
+
+        userPlant.setPictureUrl(newPicture);
+        return userPlantRepository.save(userPlant);
     }
 
-    public UserPlant updatePlantName(Long id, String newName) {
-        return userPlantRepository.findById(id)
-                .map(userPlant -> {
-                    userPlant.setPictureUrl(newName);
 
-                    return userPlantRepository.save(userPlant);
-                }).orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + id));
+    public UserPlant updatePlantName(Long userPlantId, Long userId, String newName) {
+        UserPlant userPlant = userPlantRepository.findById(userPlantId)
+                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + userPlantId));
+
+        if (!userPlant.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to access this plant");
+        }
+
+        userPlant.setPictureUrl(newName);
+
+        return userPlantRepository.save(userPlant);
     }
 
     //checks to see if user plant belongs to logged in user
