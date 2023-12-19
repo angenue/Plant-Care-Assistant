@@ -24,12 +24,6 @@ public class UserController {
         return ResponseEntity.status(201).body(user);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<User> loginUser(@RequestParam String email, @RequestParam String password) {
-        User user = userService.loginUser(email, password);
-        return ResponseEntity.ok(user);
-    }
-
     @PutMapping("/{id}/update-password")
     public ResponseEntity<User> updatePassword(@PathVariable Long id,
                                                @RequestParam String newPassword,
