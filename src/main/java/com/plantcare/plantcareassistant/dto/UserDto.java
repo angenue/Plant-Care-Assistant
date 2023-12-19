@@ -1,5 +1,7 @@
 package com.plantcare.plantcareassistant.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,10 +13,11 @@ import org.springframework.lang.NonNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
-    @NonNull
+    @NotNull(message = "is required")
+    @Email(message = "Invalid email format")
     private String email;
-    @NonNull
+    @NotNull(message = "is required")
     private String passwordHash;
-    @NonNull
+    @NotNull(message = "is required")
     private String confirmPasswordHash;
 }

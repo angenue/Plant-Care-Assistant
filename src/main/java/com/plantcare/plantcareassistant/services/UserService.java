@@ -26,6 +26,11 @@ public class UserService {
         if(isEmailTaken(userDto.getEmail())) {
             throw new IllegalStateException("Email already taken");
         }
+
+        if (!isPasswordStrong(userDto.getPasswordHash())) {
+            throw new IllegalArgumentException("Password does not meet the strength requirements");
+        }
+
         // Check if passwords match
         checkPasswordsMatch(userDto.getPasswordHash(), userDto.getConfirmPasswordHash());
 
@@ -47,6 +52,30 @@ public class UserService {
         if (!password.equals(confirmPassword)) {
             throw new IllegalArgumentException("Passwords do not match");
         }
+    }
+
+    private boolean isPasswordStrong(String password) {
+        if (password == null || password.length() < 8) {
+            return false;
+        }
+
+        boolean hasUpper = false;
+        boolean hasLower = false;
+        boolean hasDigit = false;
+        boolean hasSpecial = false;
+
+        for (char c : password.toCharArray()) {
+            if (Character.isUpperCase(c)) hasUpper = true;
+            else if (Character.isLowerCase(c)) hasLower = true;
+            else if (Character.isDigit(c)) hasDigit = true;
+            else if (!Character.isLetterOrDigit(c)) hasSpecial = true;
+
+            if (hasUpper && hasLower && hasDigit && hasSpecial) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //checks if email is taken
