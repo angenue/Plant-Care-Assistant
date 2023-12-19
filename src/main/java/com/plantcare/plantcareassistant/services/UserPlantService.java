@@ -70,7 +70,16 @@ public class UserPlantService {
                 }).orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + id));
     }
 
-    public void deleteUserPlant(Long id) {
-        userPlantRepository.deleteById(id);
+    //checks to see if user plant belongs to logged in user
+    public void deleteUserPlant(Long userPlantId, Long userId) {
+        UserPlant userPlant = userPlantRepository.findById(userPlantId)
+                .orElseThrow(() -> new EntityNotFoundException("Plant not found with id " + userPlantId));
+
+        if (!userPlant.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to access this plant");
+        }
+
+        userPlantRepository.deleteById(userPlantId);
     }
+
 }

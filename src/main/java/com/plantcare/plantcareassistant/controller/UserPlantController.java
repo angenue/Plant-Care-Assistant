@@ -55,6 +55,8 @@ public class UserPlantController {
 
     //methods for when user clicks on a plant
 
+    //TODO: need to fetch plant id, not the id of the saved plant
+
     //gets the plant info from api
     /*@GetMapping("/{userPlantId}/details")
     public ResponseEntity<?> getPlantDetails(@PathVariable Long userPlantId) {
@@ -127,9 +129,11 @@ public class UserPlantController {
     //method for deleting saved plant
     @DeleteMapping("/{userPlantId}")
     public ResponseEntity<?> deleteUserPlant(@PathVariable Long userPlantId) {
-        userPlantService.deleteUserPlant(userPlantId);
+        Long currentUserId = getCurrentUserId();
+        userPlantService.deleteUserPlant(userPlantId, currentUserId);
         return ResponseEntity.ok().build();
     }
+
 
     // Utility method to get the current user's ID
     private Long getCurrentUserId() {
