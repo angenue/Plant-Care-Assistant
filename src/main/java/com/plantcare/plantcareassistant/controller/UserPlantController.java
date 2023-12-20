@@ -102,10 +102,10 @@ public class UserPlantController {
         return ResponseEntity.ok(updatedLog);
     }
 
-    @DeleteMapping("/watering-logs/{id}")
-    public ResponseEntity<?> deleteWateringHistory(@PathVariable Long id) {
+    @DeleteMapping("/watering-logs/{logId}")
+    public ResponseEntity<?> deleteWateringHistory(@PathVariable Long logId) {
         Long currentUserId = getCurrentUserId();
-        plantWateringHistoryService.deleteWateringHistory(id, currentUserId);
+        plantWateringHistoryService.deleteWateringHistory(logId, currentUserId);
         return ResponseEntity.noContent().build();
     }
 

@@ -123,4 +123,8 @@ public class UserPlantService {
         userPlantRepository.deleteById(userPlantId);
     }
 
+    public boolean isPlantSavedByUser(String plantId, Long userId) {
+        List<UserPlant> userPlants = userPlantRepository.findByUserId(userId);
+        return userPlants.stream().anyMatch(up -> plantId.equals(up.getApiPlantId()));
+    }
 }

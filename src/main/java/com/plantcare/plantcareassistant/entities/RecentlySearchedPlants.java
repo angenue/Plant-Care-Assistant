@@ -22,6 +22,7 @@ public class RecentlySearchedPlants {
     private User user;
 
     private String apiPlantId;
+    private String plantName;
     private String pictureUrl;
     private LocalDateTime timestamp;
 
