@@ -72,18 +72,19 @@ public class UserPlantController {
     }
 
     //displays the watering log
-    @GetMapping("/{userPlantId}")
+    @GetMapping("/{userPlantId}/watering-log")
     public ResponseEntity<?> getWateringLog(@PathVariable Long userPlantId) {
         Long currentUserId = getCurrentUserId();
-        UserPlant userPlant = userPlantService.getUserPlantById(userPlantId);
+        UserPlant userPlant = userPlantService.getUserPlantForWateringLog(userPlantId, currentUserId);
         List<PlantWateringHistory> wateringHistory = plantWateringHistoryService.getAllWateringHistoryByPlantId(userPlantId, currentUserId);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("userPlant", userPlant);
+        response.put("userPlant", userPlant); // Includes notification settings
         response.put("wateringHistory", wateringHistory);
 
         return ResponseEntity.ok(response);
     }
+
 
     // Endpoint to update notification settings
     @PutMapping("/{userPlantId}/notification-settings")

@@ -50,10 +50,18 @@ public class UserPlantService {
     }
 
 
-    /*public UserPlant getUserPlantById(Long id) {
-        return userPlantRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Plant not found with id " + id));
-    }*/
+    public UserPlant getUserPlantForWateringLog(Long userPlantId, Long userId) {
+        UserPlant userPlant = userPlantRepository.findById(userPlantId)
+                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id: " + userPlantId));
+
+        if (!userPlant.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to access this plant");
+        }
+
+        return userPlant;
+    }
+
+
 
     public UserPlant addUserPlant(Long userId, UserPlantDto userPlantDto) {
         UserPlant userPlant = new UserPlant();
