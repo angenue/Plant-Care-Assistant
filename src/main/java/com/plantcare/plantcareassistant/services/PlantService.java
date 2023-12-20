@@ -20,7 +20,7 @@ public class PlantService {
     }
 
     public List<SimplePlant> searchPlants(String query) {
-        String apiUrl = "https://perenual.com/api/species-list?key=sk-8gDQ657e475dd3c7e3485&q=" + query;
+        String apiUrl = "https://perenual.com/api/species-list?key=sk-8zkj658232318cd963526&q=" + query;
         ResponseEntity<PlantListResponse> response = restTemplate.getForEntity(apiUrl, PlantListResponse.class);
         return response.getBody().getPlants().stream()
                 .map(this::transformToSimplePlant)
@@ -36,7 +36,7 @@ public class PlantService {
     }
 
     public Plant getPlantDetails(String plantId) {
-        String detailUrl = "https://perenual.com/api/species/details/" + plantId + "?key=sk-8gDQ657e475dd3c7e3485";
+        String detailUrl = "https://perenual.com/api/species/details/" + plantId + "?key=sk-8zkj658232318cd963526";
         System.out.println("Making API request to URL: " + detailUrl);
 
         ResponseEntity<Plant> response = restTemplate.getForEntity(detailUrl, Plant.class);

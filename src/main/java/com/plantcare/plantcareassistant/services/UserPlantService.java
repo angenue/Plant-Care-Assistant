@@ -1,6 +1,8 @@
 package com.plantcare.plantcareassistant.services;
 
+import com.plantcare.plantcareassistant.dto.CombinedPlantDto;
 import com.plantcare.plantcareassistant.dto.UserPlantDto;
+import com.plantcare.plantcareassistant.entities.Plant;
 import com.plantcare.plantcareassistant.entities.User;
 import com.plantcare.plantcareassistant.entities.UserPlant;
 import com.plantcare.plantcareassistant.repository.UserPlantRepository;
@@ -8,8 +10,6 @@ import com.plantcare.plantcareassistant.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,28 +19,52 @@ public class UserPlantService {
 
     private final UserPlantRepository userPlantRepository;
     private final UserRepository userRepository;
+    private final PlantService plantService;
 
     @Autowired
-    public UserPlantService(UserPlantRepository userPlantRepository, UserRepository userRepository) {
+    public UserPlantService(UserPlantRepository userPlantRepository, UserRepository userRepository, PlantService plantService) {
         this.userPlantRepository = userPlantRepository;
         this.userRepository = userRepository;
+        this.plantService = plantService;
     }
 
     public List<UserPlant> getAllUserPlantsByUserId(Long userId) {
         return userPlantRepository.findByUserId(userId);
     }
 
-    public UserPlant getUserPlantById(Long id) {
+    public CombinedPlantDto getUserPlantById(Long userPlantId, Long userId) {
+        UserPlant userPlant = userPlantRepository.findById(userPlantId)
+                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id: " + userPlantId));
+
+        if (!userPlant.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to access this plant");
+        }
+
+        Plant plant = plantService.getPlantDetails(userPlant.getApiPlantId());
+
+        CombinedPlantDto combinedPlantDto = new CombinedPlantDto();
+        combinedPlantDto.setPlantDetails(plant);
+        combinedPlantDto.setUserPlantDetails(userPlant);
+
+        return combinedPlantDto;
+    }
+
+
+    /*public UserPlant getUserPlantById(Long id) {
         return userPlantRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Plant not found with id " + id));
-    }
+    }*/
 
     public UserPlant addUserPlant(Long userId, UserPlantDto userPlantDto) {
         UserPlant userPlant = new UserPlant();
 
         //retrieving user id
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + userPlantDto.getUserId()));
+                .orElseThrow(() -> new EntityNotFoundException("Plant not found with id " + userPlantDto.getUserId()));
+
+        if (!userPlant.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to access this plant");
+        }
 
         userPlant.setUser(user);
         userPlant.setApiPlantId(userPlantDto.getApiPlantId());

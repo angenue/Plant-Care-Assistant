@@ -1,5 +1,6 @@
 package com.plantcare.plantcareassistant.controller;
 
+import com.plantcare.plantcareassistant.dto.CombinedPlantDto;
 import com.plantcare.plantcareassistant.dto.UserPlantDto;
 import com.plantcare.plantcareassistant.dto.WateringEventDto;
 import com.plantcare.plantcareassistant.entities.PlantWateringHistory;
@@ -46,7 +47,7 @@ public class UserPlantController {
 
 
     //methods for displaying all the saved plants
-    @GetMapping("/user/plants")
+    @GetMapping("/yourPlants")
     public ResponseEntity<List<UserPlant>> getAllSavedPlants() {
         Long currentUserId = getCurrentUserId();
         List<UserPlant> userPlants = userPlantService.getAllUserPlantsByUserId(currentUserId);
@@ -54,15 +55,13 @@ public class UserPlantController {
     }
 
     //methods for when user clicks on a plant
+    @GetMapping("/{userPlantId}")
+    public ResponseEntity<CombinedPlantDto> getUserPlant(@PathVariable Long userPlantId) {
+        Long currentUserId = getCurrentUserId();
+        CombinedPlantDto combinedPlantDetails = userPlantService.getUserPlantById(userPlantId, currentUserId);
+        return ResponseEntity.ok(combinedPlantDetails);
+    }
 
-    //TODO: need to fetch plant id, not the id of the saved plant
-
-    //gets the plant info from api
-    /*@GetMapping("/{userPlantId}/details")
-    public ResponseEntity<?> getPlantDetails(@PathVariable Long userPlantId) {
-        //need to get plantid
-        UserPlant userPlant = userPlantService.getUserPlantById(userPlantId);
-    }*/
 
     //methods for the watering log
     @PostMapping("/{userPlantId}/watering")

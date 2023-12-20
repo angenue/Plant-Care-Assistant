@@ -25,7 +25,7 @@ public class PlantController {
 
     @GetMapping("/search")
     public ResponseEntity<?> searchPlants(@RequestParam String query) {
-        String apiUrl = "https://perenual.com/api/species-list?key=sk-PlIJ657dffdc96fdb3485&q=" + query;
+        String apiUrl = "https://perenual.com/api/species-list?key=sk-8zkj658232318cd963526&q=" + query;
         ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
         return ResponseEntity.ok(response.getBody());
     }
