@@ -24,12 +24,4 @@ public class PlantListResponse {
     private int lastPage;
     private int from;
     private int to;
-
-    public List<Plant> getPlants() {
-        return plants;
-    }
-
-    public void setPlants(List<Plant> plants) {
-        this.plants = plants;
-    }
 }

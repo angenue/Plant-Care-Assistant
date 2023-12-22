@@ -19,7 +19,11 @@ public class Plant {
     private String id;
 
     @JsonProperty("common_name")
-    private String name;
+    private String commonName;
+
+    @JsonProperty("scientific_name")
+    private String scientificName;
+
 
     private String type;
     private boolean indoor;

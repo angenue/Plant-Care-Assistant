@@ -36,7 +36,7 @@ public class RecentlySearchedPlantsService {
         newSearch.setUser(user);
         newSearch.setApiPlantId(apiPlantId);
         newSearch.setTimestamp(now);
-        newSearch.setPlantName(plant.getName());
+        newSearch.setPlantName(plant.getCommonName());
         newSearch.setPictureUrl(plant.getImageUrl());
         recentlySearchedRepository.save(newSearch);
 

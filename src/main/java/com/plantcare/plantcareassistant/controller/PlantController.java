@@ -1,7 +1,9 @@
 package com.plantcare.plantcareassistant.controller;
 
 import com.plantcare.plantcareassistant.dto.RecentlySearchedPlantsDto;
+import com.plantcare.plantcareassistant.entities.ImageRequest;
 import com.plantcare.plantcareassistant.entities.Plant;
+import com.plantcare.plantcareassistant.entities.SimplePlant;
 import com.plantcare.plantcareassistant.entities.User;
 import com.plantcare.plantcareassistant.services.PlantService;
 import com.plantcare.plantcareassistant.services.RecentlySearchedPlantsService;
@@ -39,11 +41,38 @@ public class PlantController {
         return "Hello, World!";
     }
 
-    @GetMapping("/search")
+    /*@GetMapping("/search")
     public ResponseEntity<?> searchPlants(@RequestParam String query) {
         String apiUrl = "https://perenual.com/api/species-list?key=sk-8zkj658232318cd963526&q=" + query;
         ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
         return ResponseEntity.ok(response.getBody());
+    }*/
+
+    /*@GetMapping("/search")
+    public ResponseEntity<SimplePlant> searchPlants(@RequestParam String query) {
+        String rawJson = plantService.searchPlants(query);
+        return ResponseEntity.ok(rawJson);
+    }*/
+
+    @GetMapping("/search")
+    public ResponseEntity<List<SimplePlant>> searchPlants(@RequestParam String query) {
+        List<SimplePlant> plants = plantService.searchPlants(query);
+        return ResponseEntity.ok(plants);
+    }
+
+
+    @PostMapping("/identify-from-image")
+    public ResponseEntity<Plant> identifyPlantFromImage(@RequestBody ImageRequest imageRequest) {
+        String base64Image = imageRequest.getImages().get(0);
+        Plant plantDetails = plantService.getPlantDetailsFromImage(base64Image);
+        return ResponseEntity.ok(plantDetails);
+    }
+
+    @PostMapping("/identify")
+    public ResponseEntity<String> identifyPlant(@RequestBody ImageRequest imageRequest) {
+        String base64Image = imageRequest.getImages().get(0);
+        String response = plantService.identifyPlant(base64Image);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/details/{plantId}")
