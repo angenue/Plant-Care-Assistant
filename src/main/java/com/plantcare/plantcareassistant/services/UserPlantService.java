@@ -33,8 +33,7 @@ public class UserPlantService {
     }
 
     public CombinedPlantDto getUserPlantById(Long userPlantId, Long userId) {
-        UserPlant userPlant = userPlantRepository.findById(userPlantId)
-                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id: " + userPlantId));
+        UserPlant userPlant = checkIfPlantExists(userPlantId);
 
         if (!userPlant.getUser().getId().equals(userId)) {
             throw new AccessDeniedException("You do not have permission to access this plant");
@@ -51,8 +50,7 @@ public class UserPlantService {
 
 
     public UserPlant getUserPlantForWateringLog(Long userPlantId, Long userId) {
-        UserPlant userPlant = userPlantRepository.findById(userPlantId)
-                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id: " + userPlantId));
+        UserPlant userPlant = checkIfPlantExists(userPlantId);
 
         if (!userPlant.getUser().getId().equals(userId)) {
             throw new AccessDeniedException("You do not have permission to access this plant");
@@ -70,11 +68,13 @@ public class UserPlantService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Plant not found with id " + userPlantDto.getUserId()));
 
+        userPlant.setUser(user);
+
         if (!userPlant.getUser().getId().equals(userId)) {
             throw new AccessDeniedException("You do not have permission to access this plant");
         }
 
-        userPlant.setUser(user);
+
         userPlant.setApiPlantId(userPlantDto.getApiPlantId());
         userPlant.setCustomName(userPlantDto.getCustomName());
         userPlant.setPictureUrl(userPlantDto.getPictureUrl());
@@ -85,11 +85,9 @@ public class UserPlantService {
 
 
     public UserPlant updateUserPlantPicture(Long userPlantId, Long userId, String newPicture) {
-        UserPlant userPlant = userPlantRepository.findById(userPlantId)
-                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + userPlantId));
-
+        UserPlant userPlant = checkIfPlantExists(userPlantId);
         // Check if the userPlant belongs to the authenticated user
-        if (!userPlant.getUser().getId().equals(userId)) {
+        if (userPlant.getUser() == null || !userPlant.getUser().getId().equals(userId)) {
             throw new AccessDeniedException("You do not have permission to access this plant");
         }
 
@@ -99,10 +97,9 @@ public class UserPlantService {
 
 
     public UserPlant updatePlantName(Long userPlantId, Long userId, String newName) {
-        UserPlant userPlant = userPlantRepository.findById(userPlantId)
-                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + userPlantId));
+        UserPlant userPlant = checkIfPlantExists(userPlantId);
 
-        if (!userPlant.getUser().getId().equals(userId)) {
+        if (userPlant.getUser() == null || !userPlant.getUser().getId().equals(userId)) {
             throw new AccessDeniedException("You do not have permission to access this plant");
         }
 
@@ -111,17 +108,21 @@ public class UserPlantService {
         return userPlantRepository.save(userPlant);
     }
 
-    //checks to see if user plant belongs to logged in user
     public void deleteUserPlant(Long userPlantId, Long userId) {
-        UserPlant userPlant = userPlantRepository.findById(userPlantId)
-                .orElseThrow(() -> new EntityNotFoundException("Plant not found with id " + userPlantId));
+        UserPlant userPlant = checkIfPlantExists(userPlantId);
 
-        if (!userPlant.getUser().getId().equals(userId)) {
+        if (userPlant.getUser() == null || !userPlant.getUser().getId().equals(userId)) {
             throw new AccessDeniedException("You do not have permission to access this plant");
         }
 
         userPlantRepository.deleteById(userPlantId);
     }
+
+    private UserPlant checkIfPlantExists(Long userPlantId) {
+        return userPlantRepository.findById(userPlantId)
+                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + userPlantId));
+    }
+
 
     public boolean isPlantSavedByUser(String plantId, Long userId) {
         List<UserPlant> userPlants = userPlantRepository.findByUserId(userId);
