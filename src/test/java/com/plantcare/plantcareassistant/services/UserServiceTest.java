@@ -155,7 +155,7 @@ public class UserServiceTest {
 
         assertEquals("User not found", exception.getMessage());
     }
-    
+
     @Test
     public void whenUpdateEmail_thenSucceed() {
         Long userId = 1L;
@@ -169,5 +169,54 @@ public class UserServiceTest {
 
         assertNotNull(updatedUser);
     }
+
+    @Test
+    public void whenUserDeleted_thenSucceed() {
+        Long userId = 1L;
+        String password = "password123!";
+        User user = new User();
+        user.setPasswordHash(passwordEncoder.encode(password));
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(password, user.getPasswordHash())).thenReturn(true);
+
+        String response = userService.deleteUser(userId, password);
+
+        Mockito.verify(userRepository).deleteById(userId);
+        assertEquals("Account deleted", response);
+    }
+
+
+    @Test
+    public void whenUserDeletedWrongPassword_thenThrowException() {
+        Long userId = 1L;
+        String correctPassword = "correctPassword";
+        String wrongPassword = "wrongPassword";
+        User user = new User();
+        user.setPasswordHash(passwordEncoder.encode(correctPassword));
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(wrongPassword, user.getPasswordHash())).thenReturn(false);
+
+        String response = userService.deleteUser(userId, wrongPassword);
+
+        assertEquals("Passwords do not match", response);
+    }
+
+
+    @Test
+    public void whenUserDeletedIdDoesntExist_thenThrowException() {
+        Long nonExistentUserId = 2L;
+        String password = "password123!";
+
+        when(userRepository.findById(nonExistentUserId)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(EntityNotFoundException.class, () -> {
+            userService.deleteUser(nonExistentUserId, password);
+        });
+
+        assertEquals("This user does not exist", exception.getMessage());
+    }
+
 
 }
