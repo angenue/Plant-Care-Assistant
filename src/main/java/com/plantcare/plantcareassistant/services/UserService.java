@@ -45,15 +45,6 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
-    /*public User loginUser(String email, String password) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
-            throw new IllegalStateException("Invalid credentials");
-        }
-        return user;
-    }*/
-
     //for password confirmation during registration
     private void checkPasswordsMatch(String password, String confirmPassword) {
         if (!password.equals(confirmPassword)) {
