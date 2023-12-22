@@ -12,8 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -54,4 +53,54 @@ public class UserServiceTest {
         assertEquals("test@example.com", createdUser.getEmail());
         assertEquals("encodedPassword", createdUser.getPasswordHash());
     }
+
+    @Test
+    public void whenCreateUserWithNonMatchingPasswords_thenThrowException() {
+        UserDto userDto = new UserDto();
+        userDto.setEmail("user@example.com");
+        userDto.setPasswordHash("Password123!");
+        userDto.setConfirmPasswordHash("DifferentPassword123!");
+
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            userService.createUser(userDto);
+        });
+
+        assertEquals("Passwords do not match", exception.getMessage());
+    }
+
+    @Test
+    public void whenCreateUserWithWeakPassword_thenThrowException() {
+        UserDto userDto = new UserDto();
+        userDto.setEmail("user@example.com");
+        userDto.setPasswordHash("weak");
+        userDto.setConfirmPasswordHash("weak");
+
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            userService.createUser(userDto);
+        });
+
+        assertEquals("Password does not meet the strength requirements", exception.getMessage());
+    }
+
+    @Test
+    public void whenCreateUserWithTakenEmail_thenThrowException() {
+        UserDto userDto = new UserDto();
+        userDto.setEmail("taken@example.com");
+        userDto.setPasswordHash("Password123!");
+        userDto.setConfirmPasswordHash("Password123!");
+
+        when(userRepository.findByEmail("taken@example.com")).thenReturn(Optional.of(new User()));
+
+        Exception exception = assertThrows(IllegalStateException.class, () -> {
+            userService.createUser(userDto);
+        });
+
+        assertEquals("Email already taken", exception.getMessage());
+    }
+
+
 }
