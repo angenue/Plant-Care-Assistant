@@ -3,10 +3,12 @@ package com.plantcare.plantcareassistant.services;
 import com.plantcare.plantcareassistant.dto.UserDto;
 import com.plantcare.plantcareassistant.entities.User;
 import com.plantcare.plantcareassistant.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -102,5 +104,70 @@ public class UserServiceTest {
         assertEquals("Email already taken", exception.getMessage());
     }
 
+    @Test
+    public void whenUpdatePassword_thenSucceed() {
+        Long userId = 1L;
+        String oldPassword = "oldPassword";
+        String newPassword = "newPassword";
+        User user = new User();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        when(passwordEncoder.matches(oldPassword, user.getPasswordHash())).thenReturn(true);
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        User updatedUser = userService.updateUserPassword(userId, newPassword, oldPassword);
+
+        Mockito.verify(passwordEncoder).encode(newPassword);
+        assertNotNull(updatedUser);
+    }
+
+    @Test
+    public void whenUpdatePasswordWithIncorrectPassword_thenThrowException() {
+        Long userId = 1L;
+        String incorrectPassword = "incorrectPassword";
+        String newPassword = "newPassword";
+        User user = new User();
+        user.setPasswordHash(passwordEncoder.encode("correctPassword"));
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches(incorrectPassword, user.getPasswordHash())).thenReturn(false);
+
+        Exception exception = assertThrows(IllegalStateException.class, () -> {
+            userService.updateUserPassword(userId, newPassword, incorrectPassword);
+        });
+
+        assertEquals("Current password is incorrect", exception.getMessage());
+    }
+
+
+    @Test
+    public void whenUpdatePasswordWithWrongId_thenThrowException() {
+        Long nonExistentUserId = 2L;
+        String newPassword = "newPassword";
+        String currentPassword = "currentPassword";
+
+        when(userRepository.findById(nonExistentUserId)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(EntityNotFoundException.class, () -> {
+            userService.updateUserPassword(nonExistentUserId, newPassword, currentPassword);
+        });
+
+        assertEquals("User not found", exception.getMessage());
+    }
+    
+    @Test
+    public void whenUpdateEmail_thenSucceed() {
+        Long userId = 1L;
+        String newEmail = "newEmail@test.com";
+        User user = new User();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        User updatedUser = userService.updateUserEmail(userId, newEmail);
+
+        assertNotNull(updatedUser);
+    }
 
 }
