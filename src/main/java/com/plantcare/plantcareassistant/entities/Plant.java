@@ -22,7 +22,7 @@ public class Plant {
     private String commonName;
 
     @JsonProperty("scientific_name")
-    private String scientificName;
+    private List<String> scientificName;
 
 
     private String type;

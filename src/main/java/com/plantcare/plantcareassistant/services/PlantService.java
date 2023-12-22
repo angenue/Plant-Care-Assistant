@@ -7,6 +7,7 @@ import com.plantcare.plantcareassistant.entities.Plant;
 import com.plantcare.plantcareassistant.entities.PlantListResponse;
 import com.plantcare.plantcareassistant.entities.SimplePlant;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -23,7 +24,11 @@ import java.util.stream.Collectors;
 @Service
 public class PlantService {
     private final String PLANT_ID_API_URL = "https://plant.id/api/v3/identification";
-    private final String API_KEY = "OUJsjwIdAUJZ4P0qmUBGQblMHbnUw9xvkUfGV82OxKzo6A9jaz";
+    @Value("${perenual.api.key}")
+    private String perenualApiKey;
+
+    @Value("${plant.id.api.key}")
+    private String plantIdApiKey;
 
     private final RestTemplate restTemplate;
 
@@ -38,7 +43,7 @@ public class PlantService {
     }*/
 
     public List<SimplePlant> searchPlants(String query) {
-        String apiUrl = "https://perenual.com/api/species-list?key=sk-8zkj658232318cd963526&q=" + query;
+        String apiUrl = "https://perenual.com/api/species-list?key=" + perenualApiKey +"&q=" + query;
         ResponseEntity<String> rawResponse = restTemplate.getForEntity(apiUrl, String.class);
         return extractSimplePlants(rawResponse.getBody());
     }
@@ -75,7 +80,7 @@ public class PlantService {
     }
 
     public Plant getPlantDetails(String plantId) {
-        String detailUrl = "https://perenual.com/api/species/details/" + plantId + "?key=sk-8zkj658232318cd963526";
+        String detailUrl = "https://perenual.com/api/species/details/" + plantId + "?key=" + perenualApiKey;
         System.out.println("Making API request to URL: " + detailUrl);
 
         ResponseEntity<Plant> response = restTemplate.getForEntity(detailUrl, Plant.class);
@@ -84,12 +89,14 @@ public class PlantService {
 
     public Plant getPlantDetailsFromImage(String base64Image) {
         String identifiedName = getPlantNameFromIdentification(base64Image);
+        System.out.println("Identified Plant Name: " + identifiedName);
 
         // Use the identified name to search for plants
         List<SimplePlant> plants = searchPlants(identifiedName);
         if (!plants.isEmpty()) {
             // Assuming you want to fetch details of the first plant
             String plantId = plants.get(0).getId();
+            System.out.println(plantId);
             return getPlantDetails(plantId);
         } else {
             throw new EntityNotFoundException("No plants found for the identified image.");
@@ -146,7 +153,7 @@ public class PlantService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Api-Key", API_KEY);
+        headers.set("Api-Key", plantIdApiKey);
 
         String requestBody = createRequestBody(base64Image);
         HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
