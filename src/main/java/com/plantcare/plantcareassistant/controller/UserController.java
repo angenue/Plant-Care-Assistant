@@ -5,6 +5,9 @@ import com.plantcare.plantcareassistant.entities.User;
 import com.plantcare.plantcareassistant.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,26 +27,38 @@ public class UserController {
         return ResponseEntity.status(201).body(user);
     }
 
-    @PutMapping("/{id}/update-password")
-    public ResponseEntity<User> updatePassword(@PathVariable Long id,
+    @PutMapping("/update-password")
+    public ResponseEntity<User> updatePassword(
                                                @RequestParam String newPassword,
                                                @RequestParam String currentPassword) {
+        Long id = getCurrentUserId();
         User updatedUser = userService.updateUserPassword(id, newPassword, currentPassword);
         return ResponseEntity.ok(updatedUser);
     }
 
-    @PutMapping("/{id}/update-email")
-    public ResponseEntity<User> updateEmail(@PathVariable Long id, @RequestParam String newEmail) {
-        User updatedUser = userService.updateUserEmail(id, newEmail);
+    @PutMapping("/update-email")
+    public ResponseEntity<User> updateEmail(@RequestParam String newEmail) {
+        Long currentUserId = getCurrentUserId();
+        User updatedUser = userService.updateUserEmail(currentUserId, newEmail);
         return ResponseEntity.ok(updatedUser);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id, @RequestParam String password) {
-        String response = userService.deleteUser(id, password);
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteUser(@RequestParam String password) {
+        Long currentUserId = getCurrentUserId();
+        String response = userService.deleteUser(currentUserId, password);
         return ResponseEntity.ok(response);
     }
 
-    // Other endpoints as needed...
+    // Utility method to get the current user's ID
+    private Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new AccessDeniedException("User is not authenticated");
+        }
+        String userEmail = authentication.getName();
+        User user = userService.getUserByEmail(userEmail);
+        return user.getId();
+    }
 
 }
