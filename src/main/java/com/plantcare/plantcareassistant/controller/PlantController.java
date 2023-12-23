@@ -36,24 +36,6 @@ public class PlantController {
         this.recentlySearchedPlantsService = recentlySearchedPlantsService;
     }
 
-    @GetMapping("/test")
-    public String testEndpoint() {
-        return "Hello, World!";
-    }
-
-    /*@GetMapping("/search")
-    public ResponseEntity<?> searchPlants(@RequestParam String query) {
-        String apiUrl = "https://perenual.com/api/species-list?key=sk-8zkj658232318cd963526&q=" + query;
-        ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
-        return ResponseEntity.ok(response.getBody());
-    }*/
-
-    /*@GetMapping("/search")
-    public ResponseEntity<SimplePlant> searchPlants(@RequestParam String query) {
-        String rawJson = plantService.searchPlants(query);
-        return ResponseEntity.ok(rawJson);
-    }*/
-
     @GetMapping("/search")
     public ResponseEntity<List<SimplePlant>> searchPlants(@RequestParam String query) {
         List<SimplePlant> plants = plantService.searchPlants(query);
