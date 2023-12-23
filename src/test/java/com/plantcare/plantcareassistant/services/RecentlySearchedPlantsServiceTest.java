@@ -9,18 +9,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import com.plantcare.plantcareassistant.dto.UserPlantDto;
 import com.plantcare.plantcareassistant.entities.User;
-import com.plantcare.plantcareassistant.entities.UserPlant;
-import com.plantcare.plantcareassistant.repository.UserPlantRepository;
-import com.plantcare.plantcareassistant.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.springframework.security.access.AccessDeniedException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;

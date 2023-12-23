@@ -30,9 +30,7 @@ public class PlantWateringHistoryService {
     }
 
     public PlantWateringHistory addWateringHistory(Long userPlantId, WateringEventDto wateringEventDto, Long userId) {
-        // First, retrieve the UserPlant by userPlantId
-        UserPlant userPlant = userPlantRepository.findById(userPlantId)
-                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id: " + userPlantId));
+        UserPlant userPlant = checkIfPlantExists(userPlantId);
 
         if (!userPlant.getUser().getId().equals(userId)) {
             throw new AccessDeniedException("You do not have permission to access this plant");
@@ -59,8 +57,7 @@ public class PlantWateringHistoryService {
 
 
     public List<PlantWateringHistory> getAllWateringHistoryByPlantId(Long plantId, Long userId) {
-        UserPlant userPlant = userPlantRepository.findById(plantId)
-                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id: " + plantId));
+        UserPlant userPlant = checkIfPlantExists(plantId);
 
         if (!userPlant.getUser().getId().equals(userId)) {
             throw new AccessDeniedException("You do not have permission to access this plant");
@@ -69,8 +66,7 @@ public class PlantWateringHistoryService {
     }
 
     public UserPlant toggleNotifications(Long userPlantId, boolean enable, Long userId) {
-        UserPlant userPlant = userPlantRepository.findById(userPlantId)
-                .orElseThrow(() -> new EntityNotFoundException("User plant not found with id " + userPlantId));
+        UserPlant userPlant = checkIfPlantExists(userPlantId);
 
         // Verify that the userPlant belongs to the authenticated user
         if (!userPlant.getUser().getId().equals(userId)) {
@@ -87,7 +83,7 @@ public class PlantWateringHistoryService {
         return wateringHistoryRepository.findByUserPlantIdOrderByWateringDateDesc(userPlantId)
                 .stream()
                 .findFirst()//gets most recent log entry
-                .orElse(null); // handle the case when there's no log entry
+                .orElse(null);
     }
 
     private void scheduleNextWateringNotification(UserPlant userPlant) {
@@ -105,7 +101,6 @@ public class PlantWateringHistoryService {
     }
 
     private LocalDate calculateNextWateringDay(UserPlant userPlant, LocalDate lastWateringDate) {
-        // Assuming userPlant has fields like wateringFrequency and frequencyUnit
         Period frequencyPeriod = getFrequencyPeriod(userPlant.getWateringFrequency(), userPlant.getFrequencyUnit());
         return lastWateringDate.plus(frequencyPeriod);
     }
@@ -120,8 +115,7 @@ public class PlantWateringHistoryService {
     }
 
     public UserPlant updateNotificationSettings(Long userPlantId, UserPlantDto userPlantDto, Long userId) {
-        UserPlant userPlant = userPlantRepository.findById(userPlantId)
-                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id: " + userPlantId));
+        UserPlant userPlant = checkIfPlantExists(userPlantId);
 
         if (!userPlant.getUser().getId().equals(userId)) {
             throw new AccessDeniedException("You do not have permission to access this plant");
@@ -162,5 +156,12 @@ public class PlantWateringHistoryService {
 
         wateringHistoryRepository.deleteById(id);
     }
+
+    private UserPlant checkIfPlantExists(Long userPlantId) {
+        return userPlantRepository.findById(userPlantId)
+                .orElseThrow(() -> new EntityNotFoundException("UserPlant not found with id " + userPlantId));
+    }
+
+
 
 }

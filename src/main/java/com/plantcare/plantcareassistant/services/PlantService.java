@@ -36,12 +36,6 @@ public class PlantService {
         this.restTemplate = restTemplate;
     }
 
-    /*public String searchPlants(String query) {
-        String apiUrl = "https://perenual.com/api/species-list?key=sk-8zkj658232318cd963526&q=" + query;
-        ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
-        return response.getBody();
-    }*/
-
     public List<SimplePlant> searchPlants(String query) {
         String apiUrl = "https://perenual.com/api/species-list?key=" + perenualApiKey +"&q=" + query;
         ResponseEntity<String> rawResponse = restTemplate.getForEntity(apiUrl, String.class);
@@ -73,7 +67,6 @@ public class PlantService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            // Handle the exception appropriately
         }
 
         return simplePlants;
@@ -94,7 +87,7 @@ public class PlantService {
         // Use the identified name to search for plants
         List<SimplePlant> plants = searchPlants(identifiedName);
         if (!plants.isEmpty()) {
-            // Assuming you want to fetch details of the first plant
+            // fetching the first plant
             String plantId = plants.get(0).getId();
             System.out.println(plantId);
             return getPlantDetails(plantId);
@@ -102,33 +95,6 @@ public class PlantService {
             throw new EntityNotFoundException("No plants found for the identified image.");
         }
     }
-
-    /*public Plant getPlantDetailsFromImage(String base64Image) {
-        String identifiedName = getPlantNameFromIdentification(base64Image);
-        System.out.println("Identified Plant Name: " + identifiedName);
-
-        // Use the identified name to search for plants
-        String rawJson = searchPlants(identifiedName);
-        System.out.println("Plant search:" + rawJson);
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        try {
-            JsonNode rootNode = objectMapper.readTree(rawJson);
-            JsonNode plantsNode = rootNode.path("plants");
-
-            if (!plantsNode.isEmpty() && plantsNode.isArray()) {
-                JsonNode firstPlantNode = plantsNode.get(0);
-                String plantId = firstPlantNode.path("id").asText();
-                System.out.println("plant id" + plantId);
-                return getPlantDetails(plantId);
-            } else {
-                throw new EntityNotFoundException("No plants found for the identified image.");
-            }
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error processing JSON response", e);
-        }
-    }*/
 
     public String getPlantNameFromIdentification(String base64Image) {
         String response = identifyPlant(base64Image);
@@ -172,16 +138,4 @@ public class PlantService {
         return json;
     }
 
-
-
-   /* private ResponseEntity<?> handleApiError(Exception e) {
-        // Log error details
-        // Return an appropriate error response
-    }*/
-
-
-
 }
-
-
-//https://perenual.com/api/species-list?key=sk-PlIJ657dffdc96fdb3485
