@@ -2,6 +2,7 @@ package com.plantcare.plantcareassistant.controller;
 
 import com.plantcare.plantcareassistant.entities.Plant;
 import com.plantcare.plantcareassistant.entities.SimplePlant;
+import com.plantcare.plantcareassistant.entities.User;
 import com.plantcare.plantcareassistant.services.PlantService;
 import com.plantcare.plantcareassistant.services.RecentlySearchedPlantsService;
 import com.plantcare.plantcareassistant.services.UserPlantService;
@@ -13,6 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -24,7 +29,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.mockito.BDDMockito.*;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
@@ -99,14 +106,25 @@ public class PlantControllerTest {
                 .andExpect(content().string(mockResponse));
     }
 
-    //commented out because i cant figure out how to authenticate user
-    /*@Test
-    @WithMockUser(username = "user@example.com") // Simulate an authenticated user
+    @Test
     void whenGetPlantDetails_thenReturnPlant() throws Exception {
+        setupMockSecurityContext();
+
         String plantId = "123";
         Plant mockPlant = new Plant();
         mockPlant.setId(plantId);
         mockPlant.setCommonName("Mock Plant");
+        mockPlant.setScientificName(Arrays.asList("Scientific Name 1", "Scientific Name 2"));
+        mockPlant.setType("Herb");
+        mockPlant.setIndoor(true);
+        mockPlant.setWatering("Moderate");
+        mockPlant.setDefaultImage(new Plant.DefaultImage("http://example.com/image.jpg"));
+        mockPlant.setCareLevel("Easy");
+        mockPlant.setDescription("Mock plant description");
+        mockPlant.setSunlight(new HashSet<>(Arrays.asList("Partial Sun", "Shade")));
+        mockPlant.setDepthWaterRequirement(null);
+        mockPlant.setWateringTime(new Plant.WateringTime("Days", "3"));
+        mockPlant.setImageUrl("http://example.com/image.jpg");
 
         given(plantService.getPlantDetails(plantId)).willReturn(mockPlant);
         given(userPlantService.isPlantSavedByUser(eq(plantId), anyLong())).willReturn(false);
@@ -115,8 +133,23 @@ public class PlantControllerTest {
         mockMvc.perform(get("/api/plants/details/{plantId}", plantId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(plantId))
-                .andExpect(jsonPath("$.commonName").value("Mock Plant"));
+                .andExpect(jsonPath("$.common_name").value("Mock Plant"));
 
         verify(recentlySearchedPlantsService).addRecentlySearched(anyLong(), eq(plantId));
-    }*/
+    }
+
+    //to authorize user for testing
+    private void setupMockSecurityContext() {
+        List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken("user@example.com", "password", authorities);
+
+        User mockUser = new User();
+        mockUser.setId(1L);
+        mockUser.setEmail("user@example.com");
+
+        when(userService.getUserByEmail("user@example.com")).thenReturn(mockUser);
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
 }

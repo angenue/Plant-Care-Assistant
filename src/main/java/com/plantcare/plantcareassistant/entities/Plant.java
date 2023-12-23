@@ -48,7 +48,7 @@ public class Plant {
     private String imageUrl;
 
 
-    public List<WaterRequirement> getDepthWaterRequirements() {
+    /*public List<WaterRequirement> getDepthWaterRequirements() {
         List<WaterRequirement> requirements = new ArrayList<>();
         if (depthWaterRequirement.isArray()) {
             // Process as an array
@@ -61,13 +61,32 @@ public class Plant {
                     requirements.add(req);
         }
         return requirements;
+    }*/
+
+    public List<WaterRequirement> getDepthWaterRequirements() {
+        List<WaterRequirement> requirements = new ArrayList<>();
+        if (depthWaterRequirement != null) {
+            if (depthWaterRequirement.isArray()) {
+                for (JsonNode node : depthWaterRequirement) {
+                    WaterRequirement req = jsonNodeToWaterRequirement(node);
+                    requirements.add(req);
+                }
+            } else {
+                WaterRequirement req = jsonNodeToWaterRequirement(depthWaterRequirement);
+                requirements.add(req);
+            }
+        }
+        return requirements;
     }
+
 
     private WaterRequirement jsonNodeToWaterRequirement(JsonNode jsonNode) {
         String unit = jsonNode.has("unit") ? jsonNode.get("unit").asText() : null;
         int value = jsonNode.has("value") ? jsonNode.get("value").asInt() : 0;
         return new WaterRequirement(unit, value);
     }
+
+
 
 
     public String getImageUrl() {

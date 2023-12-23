@@ -85,15 +85,6 @@ public class UserPlantController {
         return ResponseEntity.ok(response);
     }
 
-
-    // Endpoint to update notification settings
-    @PutMapping("/{userPlantId}/notification-settings")
-    public ResponseEntity<UserPlant> updateNotificationSettings(@PathVariable Long userPlantId, @RequestBody UserPlantDto userPlantDto) {
-        Long currentUserId = getCurrentUserId();
-        UserPlant updatedUserPlant = plantWateringHistoryService.updateNotificationSettings(userPlantId, userPlantDto, currentUserId);
-        return ResponseEntity.ok(updatedUserPlant);
-    }
-
     // Endpoint to update a watering log
     @PutMapping("/watering-logs/{logId}")
     public ResponseEntity<PlantWateringHistory> updateWateringLog(@PathVariable Long logId, @RequestBody LocalDateTime newWateringDateTime) {
@@ -109,8 +100,6 @@ public class UserPlantController {
         return ResponseEntity.noContent().build();
     }
 
-
-
     //methods regarding notifications
     @PostMapping("/{userPlantId}/notifications")
     public ResponseEntity<?> toggleNotifications(@PathVariable Long userPlantId, @RequestParam boolean enable) {
@@ -118,6 +107,16 @@ public class UserPlantController {
         UserPlant wateringNotif = plantWateringHistoryService.toggleNotifications(userPlantId, enable, currentUserId);
         return ResponseEntity.ok(wateringNotif);
     }
+
+
+    // Endpoint to update notification settings
+    @PutMapping("/{userPlantId}/notification-settings")
+    public ResponseEntity<UserPlant> updateNotificationSettings(@PathVariable Long userPlantId, @RequestBody UserPlantDto userPlantDto) {
+        Long currentUserId = getCurrentUserId();
+        UserPlant updatedUserPlant = plantWateringHistoryService.updateNotificationSettings(userPlantId, userPlantDto, currentUserId);
+        return ResponseEntity.ok(updatedUserPlant);
+    }
+
 
     //methods for updating plant image and name
     @PutMapping("/{userPlantId}/picture")
