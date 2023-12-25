@@ -109,7 +109,7 @@ public class UserControllerTest {
     void whenUpdateEmail_thenReturnUpdatedUser() throws Exception {
         setupMockSecurityContext();
         String newEmail = "newemail@example.com";
-        User updatedUser = new User(); 
+        User updatedUser = new User();
 
         given(userService.updateUserEmail(anyLong(), eq(newEmail))).willReturn(updatedUser);
 
