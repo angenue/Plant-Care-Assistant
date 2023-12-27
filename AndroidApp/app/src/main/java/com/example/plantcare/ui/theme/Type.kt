@@ -16,33 +16,25 @@ val LexendFontFamily = FontFamily(
 
 // Set of Material typography styles to start with
 val Typography = Typography(
-    /*bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    ),*/
-
     bodyLarge = TextStyle(
         fontFamily = LexendFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp
+        fontSize = 50.sp
     ),
     bodySmall = TextStyle(
         fontFamily = LexendFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 10.sp
+        fontSize = 30.sp
     ),
     titleLarge = TextStyle(
         fontFamily = LexendFontFamily,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 20.sp
+        fontSize = 55.sp
     ),
     labelSmall = TextStyle(
         fontFamily = LexendFontFamily,
         fontWeight = FontWeight.Light,
-        fontSize = 10.sp
+        fontSize = 30.sp
     ),
     /* Other default text styles to override
     titleLarge = TextStyle(
