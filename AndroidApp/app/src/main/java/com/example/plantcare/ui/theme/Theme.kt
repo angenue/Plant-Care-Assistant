@@ -13,8 +13,12 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
+import com.example.plantcare.R
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -23,9 +27,9 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = SageGreen,
+    secondary = ArmyGreen,
+    tertiary = LightSage
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -37,6 +41,7 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color(0xFF1C1B1F),
     */
 )
+
 
 @Composable
 fun PlantCareTheme(

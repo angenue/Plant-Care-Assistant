@@ -2,19 +2,48 @@ package com.example.plantcare.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.example.plantcare.R
+
+val LexendFontFamily = FontFamily(
+    Font(R.font.lexend_light, FontWeight.Light),
+    Font(R.font.lexend_regular, FontWeight.Normal),
+    Font(R.font.lexend_semibold, FontWeight.SemiBold)
+)
 
 // Set of Material typography styles to start with
 val Typography = Typography(
-    bodyLarge = TextStyle(
+    /*bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
-    )
+    ),*/
+
+    bodyLarge = TextStyle(
+        fontFamily = LexendFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp
+    ),
+    bodySmall = TextStyle(
+        fontFamily = LexendFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 10.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = LexendFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp
+    ),
+    labelSmall = TextStyle(
+        fontFamily = LexendFontFamily,
+        fontWeight = FontWeight.Light,
+        fontSize = 10.sp
+    ),
     /* Other default text styles to override
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,

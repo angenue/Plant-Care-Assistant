@@ -5,17 +5,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,7 +52,7 @@ class LoginRegisterBackground {
                                 DarkGray // Light gray color at the bottom
                             ),
 
-                        )
+                            )
                     )
             ) { Column(
                     modifier = Modifier.fillMaxSize(),
@@ -58,6 +64,31 @@ class LoginRegisterBackground {
             }
         }
         }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun CustomTopBar() {
+        TopAppBar(
+            colors = TopAppBarDefaults.smallTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.primary,
+            ),
+            title = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.water_drop),
+                        contentDescription = "Water Drop Logo",
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(Modifier.width(8.dp)) // Space between icon and text
+                    Text("PlantPal", style = MaterialTheme.typography.h6)
+                }
+            },
     }
 
 
@@ -79,7 +110,8 @@ class LoginRegisterBackground {
             Image(
                 painter = painterResource(id = R.drawable.topplant),
                 contentDescription = "Top Image",
-                modifier = Modifier.width(600.dp)
+                modifier = Modifier
+                    .width(600.dp)
                     .height(410.dp)
             )
         }
