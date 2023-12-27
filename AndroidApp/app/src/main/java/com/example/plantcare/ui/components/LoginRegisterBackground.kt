@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -46,11 +48,54 @@ import com.example.plantcare.ui.theme.LexendFontFamily
 import com.example.plantcare.ui.theme.LightGray
 
 class LoginRegisterBackground {
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-    @OptIn(ExperimentalMaterial3Api::class)
+
     @Preview
     @Composable
-    fun MyApp() {
+    fun PreviewLoginRegisterBackground() {
+        LoginRegisterBackground().MyApp {
+            MiddleSection {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Example content for preview
+                    Text("Email")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Password")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {}) {
+                        Text("Log In")
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(onClick = {}) {
+                        Text("Don't have an account? Register here")
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun MiddleSection(content: @Composable () -> Unit) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 15.dp)
+                .height(300.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) ,
+            shape = RoundedCornerShape(28.dp)
+        ) {
+            content()
+        }
+    }
+
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    @OptIn(ExperimentalMaterial3Api::class)
+    //@Preview
+    @Composable
+    fun MyApp(content: @Composable () -> Unit) {
         MaterialTheme {
             Scaffold(
                 topBar = { CustomTopBar() }
@@ -72,7 +117,7 @@ class LoginRegisterBackground {
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         TopSection()
-                        MiddleSection()
+                        content()
                         BottomSection()
                     }
                 }
@@ -117,9 +162,6 @@ class LoginRegisterBackground {
     }
 
 
-
-
-
     @Preview
     @Composable
     fun TopSectionPreview() {
@@ -142,20 +184,6 @@ class LoginRegisterBackground {
                     .width(600.dp)
                     .height(410.dp)
             )
-        }
-    }
-
-    @Composable
-    fun MiddleSection() {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 15.dp)
-                .height(300.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) ,
-            shape = RoundedCornerShape(28.dp)
-        ) {
-            // login or register
         }
     }
 
