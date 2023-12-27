@@ -36,10 +36,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.plantcare.R
 import com.example.plantcare.ui.theme.DarkGray
+import com.example.plantcare.ui.theme.LexendFontFamily
 import com.example.plantcare.ui.theme.LightGray
 
 class LoginRegisterBackground {
@@ -77,37 +80,6 @@ class LoginRegisterBackground {
         }
     }
 
-    /*@OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun CustomTopBar() {
-        TopAppBar(
-            title = {
-                // Title content
-            },
-            colors = TopAppBarDefaults.smallTopAppBarColors(
-                containerColor = Color.Transparent,
-                titleContentColor = Color.Black,
-            )
-        ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "App Name",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(start = 16.dp) // Adjust padding as needed
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.water_drop),
-                    contentDescription = "Logo",
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(24.dp) // Adjust size as needed
-                )
-            }
-        }
-    }*/
-
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun CustomTopBar(){
@@ -125,7 +97,9 @@ class LoginRegisterBackground {
                     Text(
                         text = "PlantPal",
                         modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.bodyLarge,
+                        fontFamily = LexendFontFamily,
+                        fontWeight = FontWeight.Light,
+                        fontSize = 20.sp
                     )
 
                     // App Icon in the center
@@ -135,7 +109,6 @@ class LoginRegisterBackground {
                         modifier = Modifier.weight(1f)
                             .size(34.dp)
                     )
-
                     // Spacer to balance the layout
                     Spacer(modifier = Modifier.weight(1f))
                 }

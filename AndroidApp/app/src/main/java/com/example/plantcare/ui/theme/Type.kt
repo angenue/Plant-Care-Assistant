@@ -19,23 +19,23 @@ val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = LexendFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 50.sp
+        fontSize = 20.sp
     ),
     bodySmall = TextStyle(
         fontFamily = LexendFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 30.sp
+        fontSize = 10.sp
     ),
     titleLarge = TextStyle(
         fontFamily = LexendFontFamily,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 55.sp
+        fontSize = 30.sp
     ),
     labelSmall = TextStyle(
         fontFamily = LexendFontFamily,
         fontWeight = FontWeight.Light,
-        fontSize = 30.sp
-    ),
+        fontSize = 10.sp
+    )
     /* Other default text styles to override
     titleLarge = TextStyle(
         fontFamily = FontFamily.Default,
