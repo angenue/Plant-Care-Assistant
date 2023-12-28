@@ -43,53 +43,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.plantcare.R
+import com.example.plantcare.ui.theme.ArmyGreen
 import com.example.plantcare.ui.theme.DarkGray
 import com.example.plantcare.ui.theme.LexendFontFamily
 import com.example.plantcare.ui.theme.LightGray
 
 class LoginRegisterBackground {
-
-    @Preview
-    @Composable
-    fun PreviewLoginRegisterBackground() {
-        LoginRegisterBackground().MyApp {
-            MiddleSection {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Example content for preview
-                    Text("Email")
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Password")
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {}) {
-                        Text("Log In")
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    TextButton(onClick = {}) {
-                        Text("Don't have an account? Register here")
-                    }
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun MiddleSection(content: @Composable () -> Unit) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 15.dp)
-                .height(300.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) ,
-            shape = RoundedCornerShape(28.dp)
-        ) {
-            content()
-        }
-    }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
@@ -184,6 +143,28 @@ class LoginRegisterBackground {
                     .width(600.dp)
                     .height(410.dp)
             )
+        }
+    }
+
+    @Composable
+    fun MiddleSection(title: String, content: @Composable () -> Unit) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 15.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) ,
+            shape = RoundedCornerShape(28.dp)
+        ) {
+            Text(
+                text = title,
+                fontFamily = LexendFontFamily,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 30.sp,
+                color = ArmyGreen,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            content()
         }
     }
 
