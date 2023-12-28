@@ -133,7 +133,7 @@ class LoginRegisterBackground {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 100.dp)
-                .height(250.dp),
+                .height(200.dp),
             contentAlignment = Alignment.Center
         ) {
             Image(

@@ -31,13 +31,15 @@ import com.example.plantcare.ui.components.LoginRegisterBackground
 import com.example.plantcare.ui.theme.SageGreen
 
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun PreviewLoginScreen() {
-    LoginScreen(
-        onLogin = { email, password -> /* Handle login */ },
-        navigateToRegister = { /* Navigate to register */ }
-    )
+    LoginRegisterBackground().MyApp {
+        LoginScreen(
+            onLogin = { email, password -> /* Handle login */ },
+            navigateToRegister = { /* Navigate to register */ }
+        )
+    }
 }
 
 
