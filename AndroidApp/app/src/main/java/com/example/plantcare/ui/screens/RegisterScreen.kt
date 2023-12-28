@@ -8,11 +8,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -21,7 +18,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -56,6 +52,7 @@ fun RegisterScreen(userApiService: UserApiService, navigateToLogin: () -> Unit) 
     var emailError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
     var confirmPasswordError by remember { mutableStateOf("") }
+    var generalError by remember { mutableStateOf("") }
 
     LoginRegisterBackground().MiddleSection("Register") {
         Column(
@@ -105,8 +102,31 @@ fun RegisterScreen(userApiService: UserApiService, navigateToLogin: () -> Unit) 
 
             Button(
                 onClick = {
-                    if (validateInputs(email, password, confirmPassword)) {
-                        registerUser(email, password, confirmPassword, userApiService)
+                    // Clear previous error messages
+                    emailError = ""
+                    passwordError = ""
+                    confirmPasswordError = ""
+
+                    // Validate the input fields
+                    val isInputValid = validateInputs(
+                        email = email,
+                        password = password,
+                        confirmPassword = confirmPassword,
+                        setEmailError = { emailError = it },
+                        setPasswordError = { passwordError = it },
+                        setConfirmPasswordError = { confirmPasswordError = it }
+                    )
+
+                    // If the input is valid, proceed with registration
+                    if (isInputValid) {
+                        registerUser(email, password, confirmPassword, userApiService) { success, message ->
+                            if (success) {
+                                // TODO: Handle successful registration (e.g., navigate to login screen)
+                            } else {
+                                // TODO: Handle registration failure (e.g., show error message)
+                                generalError = message
+                            }
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -192,17 +212,30 @@ private fun isPasswordStrong(password: String): Boolean {
 }
 
 
-private fun registerUser(email: String, password: String, confirmPassword: String, userApiService: UserApiService) {
+private fun registerUser(email: String, password: String, confirmPassword: String, userApiService: UserApiService, onResult: (Boolean, String) -> Unit) {
     val userDto = UserDto(email, password, confirmPassword)
     val call = userApiService.registerUser(userDto)
 
     call.enqueue(object : retrofit2.Callback<User> {
         override fun onResponse(call: Call<User>, response: Response<User>) {
-            // Handle successful response
+            if (response.isSuccessful) {
+                // Registration successful
+                onResult(true, "Registration successful")
+            } else {
+                // Server returned an error
+                val errorMessage = when (response.code()) {
+                    400 -> "Invalid request" // Customize as per your API's error responses
+                    409 -> "Email already taken"
+                    else -> "Unknown error occurred"
+                }
+                onResult(false, errorMessage)
+            }
         }
 
         override fun onFailure(call: Call<User>, t: Throwable) {
-            // Handle network error
+            // Network error or exception occurred
+            onResult(false, "Network error: ${t.message}")
         }
     })
 }
+
