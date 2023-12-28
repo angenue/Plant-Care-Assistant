@@ -52,7 +52,6 @@ class LoginRegisterBackground {
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
-    //@Preview
     @Composable
     fun MyApp(content: @Composable () -> Unit) {
         MaterialTheme {

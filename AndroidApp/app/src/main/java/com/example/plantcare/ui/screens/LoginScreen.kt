@@ -31,7 +31,7 @@ import com.example.plantcare.ui.components.LoginRegisterBackground
 import com.example.plantcare.ui.theme.SageGreen
 
 
-@Preview(showBackground = true)
+/*@Preview(showBackground = true)
 @Composable
 fun PreviewLoginScreen() {
     LoginRegisterBackground().MyApp {
@@ -40,7 +40,7 @@ fun PreviewLoginScreen() {
             navigateToRegister = { /* Navigate to register */ }
         )
     }
-}
+}*/
 
 
 @OptIn(ExperimentalMaterial3Api::class)

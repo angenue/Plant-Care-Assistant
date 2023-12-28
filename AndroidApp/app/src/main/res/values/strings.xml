@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">PlantCare</string>
+    <string name="app_name">PlantPal</string>
+    <string name="Login">Login</string>
+    <string name="Register">Register</string>
 </resources>

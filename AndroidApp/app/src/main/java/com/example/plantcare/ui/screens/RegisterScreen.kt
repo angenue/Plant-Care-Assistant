@@ -43,6 +43,15 @@ fun PreviewRegisterScreen() {
         )
     }
 }*/
+
+@Composable
+fun RegisterScreenWithBackground(userApiService: UserApiService, navigateToLogin: () -> Unit) {
+    LoginRegisterBackground().MyApp {
+        RegisterScreen(userApiService, navigateToLogin)
+    }
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(userApiService: UserApiService, navigateToLogin: () -> Unit) {
@@ -121,9 +130,9 @@ fun RegisterScreen(userApiService: UserApiService, navigateToLogin: () -> Unit) 
                     if (isInputValid) {
                         registerUser(email, password, confirmPassword, userApiService) { success, message ->
                             if (success) {
-                                // TODO: Handle successful registration (e.g., navigate to login screen)
+                                // TODO: log in user instead of navigating to login
+                                navigateToLogin()
                             } else {
-                                // TODO: Handle registration failure (e.g., show error message)
                                 generalError = message
                             }
                         }
@@ -224,7 +233,7 @@ private fun registerUser(email: String, password: String, confirmPassword: Strin
             } else {
                 // Server returned an error
                 val errorMessage = when (response.code()) {
-                    400 -> "Invalid request" // Customize as per your API's error responses
+                    400 -> "Invalid request"
                     409 -> "Email already taken"
                     else -> "Unknown error occurred"
                 }
