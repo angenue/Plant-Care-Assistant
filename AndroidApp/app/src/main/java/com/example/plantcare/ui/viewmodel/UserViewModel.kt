@@ -10,6 +10,9 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import android.util.Base64;
+import okhttp3.ResponseBody
+import org.json.JSONException
+import org.json.JSONObject
 
 import javax.inject.Inject
 
@@ -148,18 +151,27 @@ class UserViewModel @Inject constructor(private val userApiService: UserApiServi
             val authHeader = "Basic " + Base64.encodeToString(credentials.toByteArray(), Base64.NO_WRAP)
 
             // Perform the login request using Retrofit
-            val call = userApiService.loginUser(authHeader)
-            call.enqueue(object : Callback<String> {
-                override fun onResponse(call: Call<String>, response: Response<String>) {
+            userApiService.loginUser(authHeader).enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                     if (response.isSuccessful) {
+                        // Handle successful response
                         onLoginSuccess()
                     } else {
-                        generalError.value = "Login failed: ${response.errorBody()?.string()}"
+                        val errorBody = response.errorBody()?.string()
+                        try {
+                            val jsonObject = JSONObject(errorBody)
+                            val message = jsonObject.getString("message")
+                            generalError.value = message // Set the error message from JSON
+                        } catch (e: JSONException) {
+                            // If parsing fails, fallback to the full error body or a default error message
+                            generalError.value = errorBody ?: "An unknown error occurred"
+                        }
                     }
                 }
 
-                override fun onFailure(call: Call<String>, t: Throwable) {
-                    generalError.value = "Network error: ${t.message}"
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    // Handle network errors or other unexpected errors
+                    generalError.value = t.message ?: "Network error"
                 }
             })
         }

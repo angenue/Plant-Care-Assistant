@@ -73,12 +73,10 @@ fun LoginScreen(viewModel: UserViewModel, navigateToMain: () -> Unit, navigateTo
 
                 Button(
                     onClick = {
-
                             viewModel.loginUser(onLoginSuccess = navigateToMain)
-
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    // ... Button styling
+
                 ) {
                     Text("Login")
                 }
