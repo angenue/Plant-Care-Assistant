@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -39,7 +41,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.plantcare.R
@@ -58,7 +62,7 @@ class LoginRegisterBackground {
             Scaffold(
                 topBar = { CustomTopBar() }
             ) {
-                Box(
+                BoxWithConstraints(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(
@@ -72,7 +76,8 @@ class LoginRegisterBackground {
                 ) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.SpaceBetween
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.CenterHorizontally // Center children horizontally
                     ) {
                         TopSection()
                         content()
@@ -109,7 +114,8 @@ class LoginRegisterBackground {
                     Image(
                         painter = painterResource(id = R.drawable.water_drop),
                         contentDescription = "App Icon",
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
                             .size(34.dp)
                     )
                     // Spacer to balance the layout
@@ -120,52 +126,65 @@ class LoginRegisterBackground {
     }
 
 
-    @Preview
-    @Composable
-    fun TopSectionPreview() {
-        TopSection()
-    }
-
     @Composable
     fun TopSection() {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 100.dp)
-                .height(200.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.topplant),
-                contentDescription = "Top Image",
+        BoxWithConstraints {
+            val topPadding = if (maxWidth < 600.dp) 50.dp else 100.dp
+            val imageHeight = if (maxWidth < 600.dp) 150.dp else 300.dp
+            val imageWidth = maxWidth * if (maxWidth < 600.dp) 0.5f else 1f // Use 50% of width for smaller screens
+
+            Box(
                 modifier = Modifier
-                    .width(600.dp)
-                    .height(410.dp)
-            )
+                    .fillMaxWidth()
+                    .padding(top = topPadding)
+                    .height(imageHeight),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.topplant),
+                    contentDescription = "Top Image",
+                    modifier = Modifier
+                        .width(imageWidth)
+                        .height(imageHeight)
+                )
+            }
         }
     }
+
 
     @Composable
     fun MiddleSection(title: String, content: @Composable () -> Unit) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 15.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) ,
-            shape = RoundedCornerShape(28.dp)
-        ) {
-            Text(
-                text = title,
-                fontFamily = LexendFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 30.sp,
-                color = ArmyGreen,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            content()
+        BoxWithConstraints { // Use BoxWithConstraints to obtain the constraints of the Box
+            val cardWidthFraction = if (maxWidth < 600.dp) 0.9f else 0.75f // Smaller screens use a larger fraction
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth(cardWidthFraction) // Use a fraction of the width
+                    .wrapContentHeight() // The height will be dynamic based on the content
+                    .padding(horizontal = 20.dp, vertical = 15.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                shape = RoundedCornerShape(28.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = title,
+                        fontFamily = LexendFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 30.sp,
+                        color = ArmyGreen,
+                        textAlign = TextAlign.Center, // Center the text horizontally
+                        modifier = Modifier.fillMaxWidth() // Ensure the Text composable fills the width of the Column
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    content()
+                }
+            }
         }
     }
+
 
 
     @Preview
