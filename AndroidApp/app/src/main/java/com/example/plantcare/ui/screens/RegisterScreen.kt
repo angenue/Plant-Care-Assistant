@@ -42,7 +42,6 @@ fun RegisterScreen(viewModel: UserViewModel, navigateToLogin: () -> Unit) {
                 .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                println("whats up")
                 // Email TextField
                 OutlinedTextField(
                     value = email,

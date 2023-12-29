@@ -27,29 +27,30 @@ class UserViewModel @Inject constructor(private val userApiService: UserApiServi
 
     fun registerUser(onRegistrationSuccess: () -> Unit) {
         // Reset errors
+        val trimmedEmail = email.value.trim()
+        val trimmedPassword = password.value.trim()
+        val trimmedConfirmPassword = confirmPassword.value.trim()
+
+        // Reset errors
         emailError.value = ""
         passwordError.value = ""
         confirmPasswordError.value = ""
         generalError.value = ""
 
 
-        val isEmailValid = isEmailValid(email.value)
+        val isEmailValid = isEmailValid(trimmedEmail)
+        val isPasswordStrong = isPasswordStrong(trimmedPassword)
+        val doPasswordsMatch = trimmedPassword == trimmedConfirmPassword
 
-        // Validate password strength
-        val isPasswordStrong = isPasswordStrong(password.value)
-
-        // Validate passwords match
-        val doPasswordsMatch = password.value == confirmPassword.value
         if (!doPasswordsMatch) {
             confirmPasswordError.value = "Passwords do not match"
         }
 
-        // Check if all inputs are valid
         val isInputValid = isEmailValid && isPasswordStrong && doPasswordsMatch
 
         if (isInputValid) {
                 // Make network call
-                val userDto = UserDto(email.value, password.value, confirmPassword.value)
+                val userDto = UserDto(trimmedEmail, trimmedPassword, trimmedConfirmPassword)
                 val call = userApiService.registerUser(userDto)
 
                 call.enqueue(object : Callback<User> {
@@ -67,10 +68,9 @@ class UserViewModel @Inject constructor(private val userApiService: UserApiServi
                     }
                 })
             } else {
-                // Set error messages
-                if (email.value.isBlank()) emailError.value = "Email is required"
-                if (password.value.isBlank()) passwordError.value = "Password is required"
-            if (confirmPassword.value.isBlank()) confirmPasswordError.value = "Password is required"
+            if (trimmedEmail.isBlank()) emailError.value = "Email is required"
+            if (trimmedPassword.isBlank()) passwordError.value = "Password is required"
+            if (trimmedConfirmPassword.isBlank()) confirmPasswordError.value = "Password is required"
             }
         }
 
