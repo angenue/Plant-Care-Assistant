@@ -32,14 +32,22 @@ class UserViewModel @Inject constructor(private val userApiService: UserApiServi
         confirmPasswordError.value = ""
         generalError.value = ""
 
-        // Input validation (pseudo code)
-        val isInputValid = email.value.isNotBlank() &&
-                password.value.isNotBlank() &&
-                confirmPassword.value == password.value
-        // Add more validation as needed
+
+        val isEmailValid = isEmailValid(email.value)
+
+        // Validate password strength
+        val isPasswordStrong = isPasswordStrong(password.value)
+
+        // Validate passwords match
+        val doPasswordsMatch = password.value == confirmPassword.value
+        if (!doPasswordsMatch) {
+            confirmPasswordError.value = "Passwords do not match"
+        }
+
+        // Check if all inputs are valid
+        val isInputValid = isEmailValid && isPasswordStrong && doPasswordsMatch
 
         if (isInputValid) {
-            if (isEmailValid(email.value) && isPasswordStrong(password.value)) {
                 // Make network call
                 val userDto = UserDto(email.value, password.value, confirmPassword.value)
                 val call = userApiService.registerUser(userDto)
@@ -62,18 +70,31 @@ class UserViewModel @Inject constructor(private val userApiService: UserApiServi
                 // Set error messages
                 if (email.value.isBlank()) emailError.value = "Email is required"
                 if (password.value.isBlank()) passwordError.value = "Password is required"
-                if (confirmPassword.value != password.value) confirmPasswordError.value =
-                    "Passwords do not match"
+            if (confirmPassword.value.isBlank()) confirmPasswordError.value = "Password is required"
             }
         }
-    }
+
 
     private fun isEmailValid(email: String): Boolean {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        if (email.isBlank()) {
+            emailError.value = "Email is required"
+            return false
+        }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            emailError.value = "Invalid email format"
+            println("hello");
+            return false
+        }
+
+        return true
     }
 
+
     private fun isPasswordStrong(password: String): Boolean {
-        if (password.length < 8) return false
+        if (password.length < 8) {
+            passwordError.value = "Password must be at least 8 characters long"
+            return false
+        }
 
         var hasUpper = false
         var hasLower = false
@@ -89,7 +110,12 @@ class UserViewModel @Inject constructor(private val userApiService: UserApiServi
             }
         }
 
-        return hasUpper && hasLower && hasDigit && hasSpecial
+        if (!(hasUpper && hasLower && hasDigit && hasSpecial)) {
+            passwordError.value = "Password must contain uppercase, lowercase, digit, and special character"
+            return false
+        }
+
+        return true
     }
 
 

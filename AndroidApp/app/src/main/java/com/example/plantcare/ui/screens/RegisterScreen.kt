@@ -1,6 +1,5 @@
 package com.example.plantcare.ui.screens
 
-import android.util.Patterns
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,14 +14,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.plantcare.ui.components.LoginRegisterBackground
 import com.example.plantcare.ui.theme.SageGreen
-import com.example.plantcare.ui.viewmodel.MockUserViewModel
 import com.example.plantcare.ui.viewmodel.UserViewModel
 
 
@@ -41,6 +39,7 @@ fun RegisterScreen(viewModel: UserViewModel, navigateToLogin: () -> Unit) {
     LoginRegisterBackground().MyApp {
         LoginRegisterBackground().MiddleSection("Register") {
             Column(modifier = Modifier.padding(16.dp)) {
+                println("whats up")
                 // Email TextField
                 OutlinedTextField(
                     value = email,
@@ -86,6 +85,15 @@ fun RegisterScreen(viewModel: UserViewModel, navigateToLogin: () -> Unit) {
                     Text("Register")
                 }
                 Spacer(modifier = Modifier.height(8.dp))
+
+                if (generalError.isNotEmpty()) {
+                    Text(
+                        text = generalError,
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
                 TextButton(onClick = navigateToLogin) {
                     Text("Already have an account? Log in")
                 }
