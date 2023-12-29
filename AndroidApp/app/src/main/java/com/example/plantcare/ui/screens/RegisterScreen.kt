@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.plantcare.ui.components.LoginRegisterBackground
+import com.example.plantcare.ui.components.PasswordTextField
 import com.example.plantcare.ui.theme.SageGreen
 import com.example.plantcare.ui.viewmodel.UserViewModel
 
@@ -54,26 +55,22 @@ fun RegisterScreen(viewModel: UserViewModel, navigateToLogin: () -> Unit) {
                 }
 
                 // Password TextField
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { viewModel.password.value = it },
-                    label = { Text("Password") },
-                    isError = passwordError.isNotEmpty()
+                PasswordTextField(
+                    password = password,
+                    onPasswordChange = { viewModel.password.value = it },
+                    label = "Password",
+                    isError = passwordError.isNotEmpty(),
+                    errorMessage = passwordError
                 )
-                if (passwordError.isNotEmpty()) {
-                    Text(passwordError, color = Color.Red, fontSize = 12.sp)
-                }
 
                 // Confirm Password TextField
-                OutlinedTextField(
-                    value = confirmPassword,
-                    onValueChange = { viewModel.confirmPassword.value = it },
-                    label = { Text("Confirm Password") },
-                    isError = confirmPasswordError.isNotEmpty()
+                PasswordTextField(
+                    password = confirmPassword,
+                    onPasswordChange = { viewModel.confirmPassword.value = it },
+                    label = "Confirm Password",
+                    isError = confirmPasswordError.isNotEmpty(),
+                    errorMessage = confirmPasswordError
                 )
-                if (confirmPasswordError.isNotEmpty()) {
-                    Text(confirmPasswordError, color = Color.Red, fontSize = 12.sp)
-                }
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
