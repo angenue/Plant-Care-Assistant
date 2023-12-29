@@ -29,90 +29,73 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.example.plantcare.ui.components.LoginRegisterBackground
 import com.example.plantcare.ui.theme.SageGreen
-
-
-/*@Preview(showBackground = true)
-@Composable
-fun PreviewLoginScreen() {
-    LoginRegisterBackground().MyApp {
-        LoginScreen(
-            onLogin = { email, password -> /* Handle login */ },
-            navigateToRegister = { /* Navigate to register */ }
-        )
-    }
-}*/
-
+import com.example.plantcare.ui.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(onLogin: (String, String) -> Unit, navigateToRegister: () -> Unit) {
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var showError by remember { mutableStateOf(false) }
+fun LoginScreen(viewModel: UserViewModel, navigateToMain: () -> Unit, navigateToRegistration: () -> Unit) {
+    val email by viewModel.email
+    val password by viewModel.password
 
-    LoginRegisterBackground().MiddleSection("Login") {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Email input field
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            // Password input field
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            if (showError) {
-                Text(
-                    text = "Error: Incorrect credentials",
-                    color = Color.Red,
-                    fontSize = 12.sp
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            // Login button
-            ElevatedButton(
-                onClick = { onLogin(email, password) },
-                elevation = ButtonDefaults.elevatedButtonElevation(
-                    defaultElevation = 10.dp
-                ),
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = SageGreen, // Button background color
-                    contentColor = MaterialTheme.colorScheme.onPrimary // Text color on button
-                )
+    val emailError by viewModel.emailError
+    val passwordError by viewModel.passwordError
+    val generalError by viewModel.generalError
+
+    LoginRegisterBackground().MyApp {
+        LoginRegisterBackground().MiddleSection("Login") {
+            Column(
+                modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Login")
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            // Link to registration screen
-            TextButton(onClick = navigateToRegister) {
-                Text("Don't have an account? Register here",
-                    color = MaterialTheme.colorScheme.secondary)
+                // Email TextField
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { viewModel.email.value = it },
+                    label = { Text("Email") },
+                    isError = emailError.isNotEmpty()
+                )
+                if (emailError.isNotEmpty()) {
+                    Text(emailError, color = Color.Red, fontSize = 12.sp)
+                }
+
+                // Password TextField
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { viewModel.password.value = it },
+                    label = { Text("Password") },
+                    isError = passwordError.isNotEmpty()
+                )
+                if (passwordError.isNotEmpty()) {
+                    Text(passwordError, color = Color.Red, fontSize = 12.sp)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = {
+
+                            viewModel.loginUser(onLoginSuccess = navigateToMain)
+
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    // ... Button styling
+                ) {
+                    Text("Login")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (generalError.isNotEmpty()) {
+                    Text(
+                        text = generalError,
+                        color = Color.Red,
+                        fontSize = 12.sp,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
+                TextButton(onClick =  navigateToRegistration) {
+                    Text("Don't have an account? Register")
+                }
             }
         }
     }
 }
-
-/*@Composable
-fun MiddleSection(content: @Composable () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 15.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp) ,
-        shape = RoundedCornerShape(28.dp)
-    ) {
-        content()
-    }
-}*/

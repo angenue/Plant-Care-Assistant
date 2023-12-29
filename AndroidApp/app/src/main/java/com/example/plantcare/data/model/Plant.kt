@@ -1,4 +1,4 @@
-package com.example.plantcare.data
+package com.example.plantcare.data.model
 
 // Plant.kt
 

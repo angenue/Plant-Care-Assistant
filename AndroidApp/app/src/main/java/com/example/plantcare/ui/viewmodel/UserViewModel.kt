@@ -9,6 +9,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import android.util.Base64;
+
 import javax.inject.Inject
 
 @HiltViewModel
@@ -119,18 +121,47 @@ class UserViewModel @Inject constructor(private val userApiService: UserApiServi
     }
 
 
+    fun loginUser(onLoginSuccess: () -> Unit) {
+        val trimmedEmail = email.value.trim()
+        val trimmedPassword = password.value.trim()
 
-    // Function to handle user login
-    /*fun loginUser() {
-        // Reset error messages
+        // Reset previous errors
         emailError.value = ""
         passwordError.value = ""
         generalError.value = ""
 
-        // Implement validation logic
-        // ...
+        // Check if the email and password fields are not empty
+        var isFormValid = true
+        if (trimmedEmail.isEmpty()) {
+            emailError.value = "Email is required"
+            isFormValid = false
+        }
+        if (trimmedPassword.isEmpty()) {
+            passwordError.value = "Password is required"
+            isFormValid = false
+        }
 
-        // Make network call to log in user
-        // ...
-    }*/
+        // If the form is valid, proceed with the login
+        if (isFormValid) {
+            // Encode credentials and create the Authorization header
+            val credentials = "$trimmedEmail:$trimmedPassword"
+            val authHeader = "Basic " + Base64.encodeToString(credentials.toByteArray(), Base64.NO_WRAP)
+
+            // Perform the login request using Retrofit
+            val call = userApiService.loginUser(authHeader)
+            call.enqueue(object : Callback<String> {
+                override fun onResponse(call: Call<String>, response: Response<String>) {
+                    if (response.isSuccessful) {
+                        onLoginSuccess()
+                    } else {
+                        generalError.value = "Login failed: ${response.errorBody()?.string()}"
+                    }
+                }
+
+                override fun onFailure(call: Call<String>, t: Throwable) {
+                    generalError.value = "Network error: ${t.message}"
+                }
+            })
+        }
+    }
 }
