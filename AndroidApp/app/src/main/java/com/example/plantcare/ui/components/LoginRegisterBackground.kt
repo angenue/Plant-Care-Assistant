@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -43,14 +44,12 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.plantcare.R
 import com.example.plantcare.ui.theme.ArmyGreen
 import com.example.plantcare.ui.theme.DarkGray
 import com.example.plantcare.ui.theme.LexendFontFamily
-import com.example.plantcare.ui.theme.LightGray
 
 class LoginRegisterBackground {
 
@@ -74,15 +73,14 @@ class LoginRegisterBackground {
                             )
                         )
                 ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.SpaceBetween,
-                        horizontalAlignment = Alignment.CenterHorizontally // Center children horizontally
-                    ) {
-                        TopSection()
-                        content()
-                        BottomSection()
-                    }
+                    BottomSection()
+
+                        //TopSection()
+
+                            content()
+
+
+
                 }
             }
         }
@@ -154,14 +152,17 @@ class LoginRegisterBackground {
 
     @Composable
     fun MiddleSection(title: String, content: @Composable () -> Unit) {
-        BoxWithConstraints { // Use BoxWithConstraints to obtain the constraints of the Box
-            val cardWidthFraction = if (maxWidth < 600.dp) 0.9f else 0.75f // Smaller screens use a larger fraction
-
+        Box(
+            contentAlignment = Alignment.Center, // This will center the content within the Box
+            modifier = Modifier
+                .fillMaxSize() // The Box will fill the entire screen
+        ) {
             Card(
                 modifier = Modifier
-                    .fillMaxWidth(cardWidthFraction) // Use a fraction of the width
+                    // Set specific sizes or limits for the card
+                    .widthIn(min = 280.dp, max = 600.dp) // Minimum and maximum width for the card
                     .wrapContentHeight() // The height will be dynamic based on the content
-                    .padding(horizontal = 20.dp, vertical = 15.dp),
+                    .padding(16.dp), // Padding around the card
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                 shape = RoundedCornerShape(28.dp)
             ) {
@@ -175,15 +176,17 @@ class LoginRegisterBackground {
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 30.sp,
                         color = ArmyGreen,
-                        textAlign = TextAlign.Center, // Center the text horizontally
-                        modifier = Modifier.fillMaxWidth() // Ensure the Text composable fills the width of the Column
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    content()
+                    content() // The content inside the card
                 }
             }
         }
     }
+
+
 
 
 

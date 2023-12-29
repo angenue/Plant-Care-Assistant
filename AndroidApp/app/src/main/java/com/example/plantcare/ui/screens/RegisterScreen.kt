@@ -38,7 +38,10 @@ fun RegisterScreen(viewModel: UserViewModel, navigateToLogin: () -> Unit) {
 
     LoginRegisterBackground().MyApp {
         LoginRegisterBackground().MiddleSection("Register") {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(16.dp)
+                .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 println("whats up")
                 // Email TextField
                 OutlinedTextField(
