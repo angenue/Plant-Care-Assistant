@@ -74,12 +74,8 @@ class LoginRegisterBackground {
                         )
                 ) {
                     BottomSection()
-
-                        //TopSection()
-
-                            content()
-
-
+                    //TopSection()
+                    content()
 
                 }
             }
@@ -88,7 +84,7 @@ class LoginRegisterBackground {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun CustomTopBar(){
+    fun CustomTopBar() {
         TopAppBar(
             colors = TopAppBarDefaults.smallTopAppBarColors(
                 containerColor = Color.Transparent,
@@ -116,7 +112,6 @@ class LoginRegisterBackground {
                             .weight(1f)
                             .size(34.dp)
                     )
-                    // Spacer to balance the layout
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
@@ -124,45 +119,44 @@ class LoginRegisterBackground {
     }
 
 
-    @Composable
-    fun TopSection() {
-        BoxWithConstraints {
-            val topPadding = if (maxWidth < 600.dp) 50.dp else 100.dp
-            val imageHeight = if (maxWidth < 600.dp) 150.dp else 300.dp
-            val imageWidth = maxWidth * if (maxWidth < 600.dp) 0.5f else 1f // Use 50% of width for smaller screens
+    /* @Composable
+     fun TopSection() {
+         BoxWithConstraints {
+             val topPadding = if (maxWidth < 600.dp) 50.dp else 100.dp
+             val imageHeight = if (maxWidth < 600.dp) 150.dp else 300.dp
+             val imageWidth = maxWidth * if (maxWidth < 600.dp) 0.5f else 1f // Use 50% of width for smaller screens
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = topPadding)
-                    .height(imageHeight),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.topplant),
-                    contentDescription = "Top Image",
-                    modifier = Modifier
-                        .width(imageWidth)
-                        .height(imageHeight)
-                )
-            }
-        }
-    }
-
+             Box(
+                 modifier = Modifier
+                     .fillMaxWidth()
+                     .padding(top = topPadding)
+                     .height(imageHeight),
+                 contentAlignment = Alignment.Center
+             ) {
+                 Image(
+                     painter = painterResource(id = R.drawable.topplant),
+                     contentDescription = "Top Image",
+                     modifier = Modifier
+                         .width(imageWidth)
+                         .height(imageHeight)
+                 )
+             }
+         }
+     }
+ */
 
     @Composable
     fun MiddleSection(title: String, content: @Composable () -> Unit) {
         Box(
-            contentAlignment = Alignment.Center, // This will center the content within the Box
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .fillMaxSize() // The Box will fill the entire screen
+                .fillMaxSize()
         ) {
             Card(
                 modifier = Modifier
-                    // Set specific sizes or limits for the card
                     .widthIn(min = 280.dp, max = 600.dp) // Minimum and maximum width for the card
                     .wrapContentHeight() // The height will be dynamic based on the content
-                    .padding(16.dp), // Padding around the card
+                    .padding(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
                 shape = RoundedCornerShape(28.dp)
             ) {
@@ -185,10 +179,6 @@ class LoginRegisterBackground {
             }
         }
     }
-
-
-
-
 
     @Preview
     @Composable
