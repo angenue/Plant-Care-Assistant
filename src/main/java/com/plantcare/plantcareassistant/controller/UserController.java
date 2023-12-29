@@ -4,6 +4,7 @@ import com.plantcare.plantcareassistant.dto.UserDto;
 import com.plantcare.plantcareassistant.entities.User;
 import com.plantcare.plantcareassistant.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -22,9 +23,16 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody UserDto userDto) {
-        User user = userService.createUser(userDto);
-        return ResponseEntity.status(201).body(user);
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto) {
+        try {
+            User user = userService.createUser(userDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        } catch (IllegalStateException e) {
+            // Email already taken
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Error: " + e.getMessage());
+        }
     }
 
     @PutMapping("/update-password")
