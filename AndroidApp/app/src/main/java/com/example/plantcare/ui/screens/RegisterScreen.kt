@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.plantcare.ui.components.LoginRegisterBackground
 import com.example.plantcare.ui.components.PasswordTextField
 import com.example.plantcare.ui.theme.SageGreen
@@ -27,7 +28,7 @@ import com.example.plantcare.ui.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(viewModel: UserViewModel, navigateToLogin: () -> Unit) {
+fun RegisterScreen(viewModel: UserViewModel, navController: NavController) {
     val email by viewModel.email
     val password by viewModel.password
     val confirmPassword by viewModel.confirmPassword
@@ -74,7 +75,7 @@ fun RegisterScreen(viewModel: UserViewModel, navigateToLogin: () -> Unit) {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
-                    onClick = { viewModel.registerUser(onRegistrationSuccess = navigateToLogin) },
+                    onClick = { viewModel.registerUser(onRegistrationSuccess = { navController.navigate("login") }) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = SageGreen, // Button background color
@@ -93,7 +94,7 @@ fun RegisterScreen(viewModel: UserViewModel, navigateToLogin: () -> Unit) {
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                 }
-                TextButton(onClick = navigateToLogin) {
+                TextButton(onClick = { navController.navigate("login") }) {
                     Text("Already have an account? Log in")
                 }
             }

@@ -30,20 +30,14 @@ class MainActivity : ComponentActivity() {
                         val loginViewModel = UserViewModel(RetrofitService.userApi)
                         LoginScreen(
                             viewModel = loginViewModel,
-                            navigateToRegistration = { navController.navigate("register") },
-                            navigateToMain = {
-                                sessionManager.isLoggedIn = true
-                                navController.navigate("home") {
-                                    popUpTo("login") { inclusive = true }
-                                }
-                            }
+                            navController = navController
                         )
                     }
                     composable("register") {
                         val registerViewModel = UserViewModel(RetrofitService.userApi)
                         RegisterScreen(
                             viewModel = registerViewModel,
-                            navigateToLogin = { navController.navigate("login") }
+                            navController = navController
                         )
                     }
                     /*composable("home") {
@@ -56,7 +50,7 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     } */
-                    // Add other composables for authenticated users
+
                 }
             }
         }
