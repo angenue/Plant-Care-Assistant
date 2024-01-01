@@ -20,13 +20,13 @@ fun HomeScreen(navController: NavController) {
     }
 
     Scaffold(
-        // Pass the BottomBar composable as the bottomBar argument
         topBar = { TopBarWithSettings (onSettingsClick ={ navController.navigate("settings") })
         },
         bottomBar = { BottomBar(onNavigate) }
     ) { innerPadding ->
         // Use 'innerPadding' to ensure content is not obscured by the BottomBar.
         Box(modifier = Modifier.padding(innerPadding)) {
+
 
 
 
