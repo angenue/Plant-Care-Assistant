@@ -1,6 +1,7 @@
 package com.example.plantcare.util
 
 import com.example.plantcare.data.network.UserApiService
+import com.example.plantcare.data.network.UserPlantService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -13,4 +14,5 @@ object RetrofitService {
         .build()
 
     val userApi: UserApiService = retrofit.create(UserApiService::class.java)
+    val userPlantApi: UserPlantService = retrofit.create(UserPlantService::class.java)
 }

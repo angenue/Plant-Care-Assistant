@@ -6,9 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.plantcare.ui.screens.HomeScreen
 import com.example.plantcare.ui.screens.LoginScreen
 import com.example.plantcare.ui.screens.RegisterScreen
 import com.example.plantcare.ui.theme.PlantCareTheme
+import com.example.plantcare.ui.viewmodel.UserPlantViewModel
 import com.example.plantcare.ui.viewmodel.UserViewModel
 import com.example.plantcare.util.RetrofitService
 import com.example.plantcare.util.SessionManager
@@ -23,6 +25,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val startDestination = if (sessionManager.isLoggedIn) "home" else "login"
+
+            val userPlantViewModel = UserPlantViewModel(RetrofitService.userPlantApi)
 
             PlantCareTheme {
                 NavHost(navController = navController, startDestination = startDestination) {
@@ -40,19 +44,16 @@ class MainActivity : ComponentActivity() {
                             navController = navController
                         )
                     }
-                    /*composable("home") {
+                    composable("home") {
                         HomeScreen(
-                            navigateToLogin = {
-                                sessionManager.isLoggedIn = false
-                                navController.navigate("login") {
-                                    popUpTo("home") { inclusive = true }
-                                }
-                            }
+                            viewModel = userPlantViewModel,
+                            navController = navController
                         )
-                    } */
+                    }
 
                 }
             }
         }
     }
 }
+
