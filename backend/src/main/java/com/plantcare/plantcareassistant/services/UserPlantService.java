@@ -76,8 +76,13 @@ public class UserPlantService {
 
 
         userPlant.setApiPlantId(userPlantDto.getApiPlantId());
+        userPlant.setScientificName(userPlantDto.getScientificName());
         userPlant.setCustomName(userPlantDto.getCustomName());
         userPlant.setPictureUrl(userPlantDto.getPictureUrl());
+        userPlant.setNotificationsEnabled(userPlantDto.getNotificationsEnabled());
+        userPlant.setNotificationTime(userPlantDto.getNotificationTime());
+        userPlant.setWateringFrequency(userPlantDto.getWateringFrequency());
+        userPlant.setFrequencyUnit(userPlantDto.getFrequencyUnit());
 
         return userPlantRepository.save(userPlant);
     }

@@ -25,6 +25,7 @@ public class UserPlant {
     private User user;
 
     private String apiPlantId;
+    private String scientificName;
     private String customName;
     private String pictureUrl;
 

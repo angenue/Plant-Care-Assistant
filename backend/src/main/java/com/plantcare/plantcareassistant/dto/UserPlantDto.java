@@ -14,6 +14,7 @@ public class UserPlantDto {
 
     private Long userId;
     private String apiPlantId;
+    private String scientificName;
     private String customName;
     private String pictureUrl;
 
