@@ -18,8 +18,8 @@ import com.example.plantcare.ui.theme.SageGreen
 
 
 @Composable
-fun BottomBar(onNavigate: (String) -> Unit) {
-    val selectedItem = remember { mutableStateOf("home") }
+fun BottomBar(currentRoute: String,onNavigate: (String) -> Unit) {
+    val selectedItem = remember { mutableStateOf(currentRoute) }
 
     NavigationBar {
         NavigationBarItem(
@@ -55,17 +55,5 @@ fun BottomBar(onNavigate: (String) -> Unit) {
                 onNavigate("search")
             }
         )
-    }
-}
-
-
-@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
-@Composable
-fun PreviewBottomBar() {
-    Surface {
-        BottomBar(onNavigate = { destination ->
-            // Handle navigation in real use, for preview just print the destination
-            println("Navigate to $destination")
-        })
     }
 }
