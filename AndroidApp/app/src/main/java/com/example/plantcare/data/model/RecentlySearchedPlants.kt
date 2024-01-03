@@ -8,5 +8,5 @@ data class RecentlySearchedPlants (
     val apiPlantId: String,
     val plantName: String,
     val pictureUrl: String,
-    val timestamp: LocalDateTime
+    val timestamp: String
 )
