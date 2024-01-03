@@ -9,7 +9,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.plantcare.ui.screens.HomeScreen
 import com.example.plantcare.ui.screens.LoginScreen
 import com.example.plantcare.ui.screens.RegisterScreen
+import com.example.plantcare.ui.screens.SearchScreen
 import com.example.plantcare.ui.theme.PlantCareTheme
+import com.example.plantcare.ui.viewmodel.PlantViewModel
 import com.example.plantcare.ui.viewmodel.UserPlantViewModel
 import com.example.plantcare.ui.viewmodel.UserViewModel
 import com.example.plantcare.util.RetrofitService
@@ -27,6 +29,7 @@ class MainActivity : ComponentActivity() {
             val startDestination = if (sessionManager.isLoggedIn) "home" else "login"
 
             val userPlantViewModel = UserPlantViewModel(RetrofitService.userPlantApi)
+            val plantViewModel = PlantViewModel(RetrofitService.plantApi)
 
             PlantCareTheme {
                 NavHost(navController = navController, startDestination = startDestination) {
@@ -51,6 +54,12 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
+                    composable("search") {
+                        SearchScreen(
+                            viewModel = plantViewModel,
+                            navController = navController
+                        )
+                    }
                 }
             }
         }
