@@ -1,6 +1,7 @@
 package com.example.plantcare.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,9 +34,11 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -82,13 +85,20 @@ fun PlantDetailsScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlantDetailsContent(plant: Plant, navController: NavController) {
+    val gradientHeight = 100.dp
+    val gradientBrush = Brush.verticalGradient(
+        colors = listOf(Color.Transparent, Color.White),
+        startY = 0f, // Gradient starts at the top of the spacer
+        endY = with(LocalDensity.current) { gradientHeight.toPx() } // Gradient ends at the bottom of the spacer
+    )
+
     Scaffold(
         topBar = {
             TopBarWithBackButton(onBackClick = { navController.popBackStack() })
         }
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
-            Column {
+            Column (modifier = Modifier.fillMaxSize()){
                 // Plant name and scientific name
                 Text(
                     text = plant.commonName,
@@ -129,12 +139,15 @@ fun PlantDetailsContent(plant: Plant, navController: NavController) {
 
                 Spacer(Modifier.height(8.dp))
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())
-                ) {
+                // Scrollable column with fading effect
+                val scrollState = rememberScrollState()
+                Box(modifier = Modifier.weight(1f)) {
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(scrollState)
+                            .fillMaxWidth()
+                            .padding(bottom = gradientHeight)
+                    ) {
 
                     // Row of plant info icons
                     PlantInfoRow(plant = plant)
@@ -178,13 +191,23 @@ fun PlantDetailsContent(plant: Plant, navController: NavController) {
                     )
                 }
 
+                    Spacer(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .height(gradientHeight)
+                            .background(brush = gradientBrush)
+                    )
+                }
+
+
                 Button(
                     onClick = {
                         // TODO: Add or remove plant from user's collection
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = SageGreen),
                     modifier = Modifier
-                        .padding(top = 16.dp, bottom = 16.dp) // Add padding to the top and bottom as needed
+                        .padding( bottom = 16.dp) // Add padding to the top and bottom as needed
                         .defaultMinSize(minWidth = 200.dp)
                         .height(50.dp)
                         .align(Alignment.CenterHorizontally) // Center the button horizontally
