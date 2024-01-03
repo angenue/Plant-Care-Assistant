@@ -5,6 +5,7 @@ import java.time.LocalTime
 data class UserPlantDto(
     val userId: Long,
     val apiPlantId: String,
+    val scientificName: String?,
     val customName: String?,
     val pictureUrl: String?,
     val notificationsEnabled: Boolean?,

@@ -26,6 +26,8 @@ class PlantViewModel @Inject constructor(
     private val _recentlySearched = MutableLiveData<List<RecentlySearchedPlantsDto>>()
     val recentlySearched: LiveData<List<RecentlySearchedPlantsDto>> = _recentlySearched
 
+    val plantDetails = MutableLiveData<Plant>()
+
     //debounce search query to reduce number of requests
     private var searchJob: Job? = null
 
@@ -60,7 +62,7 @@ class PlantViewModel @Inject constructor(
         viewModelScope.launch {
             val response: Response<Plant> = plantService.getPlantDetails(plantId)
             if (response.isSuccessful) {
-                val plantDetails = response.body()
+                plantDetails.value = response.body()
 
                 // Placeholder for future implementation
                 // TODO: Pass `plantDetails` to the plant details screen when implemented

@@ -64,7 +64,7 @@ fun HomeScreen(
                     ) {
                         items(userPlants) { userPlant ->
                             PlantItem(
-                                plantName = userPlant.customName,
+                                plantName = userPlant.scientificName,
                                 imageUrl = userPlant.pictureUrl,
                                 onClick = { navController.navigate("plantDetails/${userPlant.userId}") }
                             )
