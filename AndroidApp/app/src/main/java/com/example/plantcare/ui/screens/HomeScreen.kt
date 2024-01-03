@@ -71,7 +71,11 @@ fun HomeScreen(
                         contentPadding = PaddingValues(8.dp),
                     ) {
                         items(userPlants) { userPlant ->
-                            PlantItem(userPlant, navController)
+                            PlantItem(
+                                plantName = userPlant.customName,
+                                imageUrl = userPlant.pictureUrl,
+                                onClick = { navController.navigate("plantDetails/${userPlant.userId}") }
+                            )
                         }
                     }
                 }

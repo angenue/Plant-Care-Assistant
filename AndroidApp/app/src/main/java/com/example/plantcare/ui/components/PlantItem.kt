@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,23 +38,27 @@ import com.example.plantcare.ui.theme.LexendFontFamily
 import com.google.accompanist.coil.rememberCoilPainter
 
 @Composable
-fun PlantItem(userPlant: UserPlant, navController: NavController) {
-    val placeholderImage = painterResource(id = R.drawable.plantitem)
-
+fun PlantItem(
+    plantName: String?,
+    imageUrl: String?,
+    onClick: () -> Unit,
+    placeholderImage: Painter = painterResource(id = R.drawable.plantitem)
+) {
     Card(
         modifier = Modifier
             .padding(8.dp)
             .aspectRatio(0.8f)
             .shadow(8.dp, RoundedCornerShape(20.dp))
-            .clickable {
-                navController.navigate("plantDetails/${userPlant.userId}")
-            },
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp)
     ) {
-        Column(modifier = Modifier.fillMaxSize()
-            .background(Color.White)
-            .clip(RoundedCornerShape(20.dp))) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .clip(RoundedCornerShape(20.dp))
+        ) {
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -61,20 +66,18 @@ fun PlantItem(userPlant: UserPlant, navController: NavController) {
                     .clip(RoundedCornerShape(20.dp))
                     .fillMaxWidth()
             ) {
-
-
-                val imagePainter = if (userPlant.pictureUrl.isNullOrEmpty()) {
+                val imagePainter = if (imageUrl.isNullOrEmpty()) {
                     placeholderImage
                 } else {
                     rememberCoilPainter(
-                        request = userPlant.pictureUrl,
+                        request = imageUrl,
                         fadeIn = true
                     )
                 }
 
                 Image(
                     painter = imagePainter,
-                    contentDescription = userPlant.customName ?: "Plant",
+                    contentDescription = plantName ?: "Plant",
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(20.dp)),
@@ -83,7 +86,7 @@ fun PlantItem(userPlant: UserPlant, navController: NavController) {
             }
 
             Text(
-                text = userPlant.customName ?: "Unnamed Plant",
+                text = plantName ?: "Unnamed Plant",
                 fontFamily = LexendFontFamily,
                 fontWeight = FontWeight.Light,
                 fontSize = 20.sp,
@@ -94,5 +97,6 @@ fun PlantItem(userPlant: UserPlant, navController: NavController) {
         }
     }
 }
+
 
 
