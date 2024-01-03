@@ -9,7 +9,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import android.util.Base64;
+import android.util.Base64
+import com.example.plantcare.util.SessionManager
 import okhttp3.ResponseBody
 import org.json.JSONException
 import org.json.JSONObject
@@ -17,7 +18,7 @@ import org.json.JSONObject
 import javax.inject.Inject
 
 @HiltViewModel
-class UserViewModel @Inject constructor(private val userApiService: UserApiService) : ViewModel() {
+class UserViewModel @Inject constructor(private val userApiService: UserApiService, private val sessionManager: SessionManager) : ViewModel() {
 
     // State for registration and login
     val email = mutableStateOf("")
@@ -87,7 +88,7 @@ class UserViewModel @Inject constructor(private val userApiService: UserApiServi
         }
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailError.value = "Invalid email format"
-            println("hello");
+            println("hello")
             return false
         }
 
@@ -155,6 +156,8 @@ class UserViewModel @Inject constructor(private val userApiService: UserApiServi
                 override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                     if (response.isSuccessful) {
                         // Handle successful response
+                        sessionManager.saveAuthHeader(authHeader)
+
                         onLoginSuccess()
                     } else {
                         val errorBody = response.errorBody()?.string()

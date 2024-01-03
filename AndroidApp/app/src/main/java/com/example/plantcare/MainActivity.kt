@@ -3,6 +3,7 @@ package com.example.plantcare
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -20,45 +21,29 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val userViewModel: UserViewModel by viewModels()
+    private val userPlantViewModel: UserPlantViewModel by viewModels()
+    private val plantViewModel: PlantViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val sessionManager = SessionManager(this)
 
         setContent {
             val navController = rememberNavController()
-            val startDestination = if (sessionManager.isLoggedIn) "home" else "login"
-
-            val userPlantViewModel = UserPlantViewModel(RetrofitService.userPlantApi)
-            val plantViewModel = PlantViewModel(RetrofitService.plantApi)
 
             PlantCareTheme {
-                NavHost(navController = navController, startDestination = startDestination) {
+                NavHost(navController = navController, startDestination = "login") {
                     composable("login") {
-                        val loginViewModel = UserViewModel(RetrofitService.userApi)
-                        LoginScreen(
-                            viewModel = loginViewModel,
-                            navController = navController
-                        )
+                        LoginScreen(userViewModel, navController)
                     }
                     composable("register") {
-                        val registerViewModel = UserViewModel(RetrofitService.userApi)
-                        RegisterScreen(
-                            viewModel = registerViewModel,
-                            navController = navController
-                        )
+                        RegisterScreen(userViewModel, navController)
                     }
                     composable("home") {
-                        HomeScreen(
-                            viewModel = userPlantViewModel,
-                            navController = navController
-                        )
+                        HomeScreen(userPlantViewModel, navController)
                     }
-
                     composable("search") {
-                        SearchScreen(
-                            viewModel = plantViewModel,
-                            navController = navController
-                        )
+                        SearchScreen(plantViewModel, navController)
                     }
                 }
             }
