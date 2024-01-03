@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.plantcare.data.model.UserPlant
 import com.example.plantcare.ui.theme.LexendFontFamily
@@ -49,9 +50,12 @@ fun HomeScreen(
     // Observe the LiveData from ViewModel
     val userPlants by viewModel.userPlants.observeAsState(emptyList())
 
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "home"
+
+
     Scaffold(
         topBar = { TopBarWithSettings { navController.navigate("settings") } },
-        bottomBar = { BottomBar { destination -> navController.navigate(destination) } }
+        bottomBar = { BottomBar(currentRoute = currentRoute) { destination -> navController.navigate(destination) } }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             if (userPlants.isEmpty()) {
@@ -67,7 +71,7 @@ fun HomeScreen(
                         modifier = Modifier.padding(16.dp)
                     )
                     LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 128.dp),
+                        columns = GridCells.Adaptive(minSize = 170.dp),
                         contentPadding = PaddingValues(8.dp),
                     ) {
                         items(userPlants) { userPlant ->

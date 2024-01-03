@@ -5,11 +5,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.plantcare.R
 import com.example.plantcare.data.model.SimplePlant
 import com.example.plantcare.ui.components.BottomBar
@@ -49,9 +55,16 @@ import com.google.accompanist.coil.rememberCoilPainter
     val searchResults by viewModel.searchResults.observeAsState(emptyList())
     val searchHistory by viewModel.recentlySearched.observeAsState(emptyList())
 
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route ?: "home"
+
+
+    LaunchedEffect(Unit) {
+        viewModel.loadRecentlySearchedPlants()
+    }
+
     Scaffold(
         topBar = { TopBarWithSettings { navController.navigate("settings") } },
-        bottomBar = { BottomBar { destination -> navController.navigate(destination) } }
+        bottomBar = { BottomBar(currentRoute = currentRoute) { destination -> navController.navigate(destination) } }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
 
@@ -88,7 +101,7 @@ import com.google.accompanist.coil.rememberCoilPainter
                     }
                     searchQuery.isNotEmpty() -> {
                         // Display search results
-                        LazyColumn {
+                        LazyColumn(modifier = Modifier.weight(1f)) {
                             items(searchResults) { plant ->
                                 SearchResultItem(plant, navController)
                             }
@@ -104,7 +117,10 @@ import com.google.accompanist.coil.rememberCoilPainter
                             fontSize = 30.sp,
                             modifier = Modifier.padding(8.dp)
                         )
-                        LazyColumn {
+                        LazyVerticalGrid(
+                            columns = GridCells.Adaptive(minSize = 170.dp),
+                            contentPadding = PaddingValues(8.dp),
+                        ) {
                             items(searchHistory) { historyItem ->
                                 PlantItem(
                                     plantName = historyItem.plantName,
