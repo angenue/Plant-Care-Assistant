@@ -1,5 +1,12 @@
 package com.example.plantcare.ui.screens
 
+import android.content.Context
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -18,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +35,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -44,6 +53,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -51,9 +61,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
+import com.example.plantcare.R
 import com.example.plantcare.data.model.Plant
 import com.example.plantcare.ui.components.PlantInfoRow
 import com.example.plantcare.ui.theme.LexendFontFamily
@@ -73,6 +85,8 @@ fun UserPlantDetailsScreen(
     val updateStatus by viewModel.updatePlantStatus.observeAsState()
     val deleteStatus by viewModel.deletePlantStatus.observeAsState()
 
+    val context = LocalContext.current
+
     // Local state for editing
     var isEditing by remember { mutableStateOf(false) }
     var editableCustomName by remember(userPlant) { mutableStateOf(userPlant?.userPlantDetails?.customName.orEmpty()) }
@@ -80,6 +94,21 @@ fun UserPlantDetailsScreen(
 
     LaunchedEffect(userPlantId) {
         viewModel.getPlantDetails(userPlantId.toLong())
+    }
+    LaunchedEffect(updateStatus) {
+        updateStatus?.let { result ->
+            when (result) {
+                is OperationStatus.Success -> {
+                    // Refresh the details and exit editing mode
+                    viewModel.getPlantDetails(userPlantId.toLong())
+                    isEditing = false
+                }
+                is OperationStatus.Error -> {
+                    // Show an error message, e.g., a Toast or Snackbar
+                    Toast.makeText(context, "Update failed: ${result.exception.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
 
@@ -103,9 +132,9 @@ fun UserPlantDetailsScreen(
 
     Scaffold(
         topBar = {
-            // Custom top bar with back navigation and title
             TopAppBarWithBackButton(
                 title = userPlant?.userPlantDetails?.scientificName,
+
                 onBackClick = {
                     navController.popBackStack()
                 })
@@ -113,14 +142,17 @@ fun UserPlantDetailsScreen(
         floatingActionButton = {
             if (isEditing) {
                 FloatingActionButton(onClick = {
-                    isEditing = false
-                    // Call ViewModel functions to update the plant
-                    viewModel.updatePlantName(userPlantId.toLong(), editableCustomName)
-                    if (editableImageUri.isNotEmpty()) {
-                        viewModel.updateUserPlantPicture(userPlantId.toLong(), editableImageUri)
+                    if (isEditing) {
+                        // Call ViewModel functions to update the plant
+                        viewModel.updatePlantName(userPlantId.toLong(), editableCustomName)
+                        if (editableImageUri.isNotEmpty()) {
+                            viewModel.updateUserPlantPicture(userPlantId.toLong(), editableImageUri)
+                        }
+                    } else {
+                        isEditing = true
                     }
                 }) {
-                    Icon(imageVector = Icons.Default.Check, contentDescription = "Save")
+                    Icon(imageVector = if (isEditing) Icons.Default.Check else Icons.Default.Edit, contentDescription = if (isEditing) "Save" else "Edit")
                 }
             } else {
                 FloatingActionButton(onClick = {
@@ -141,14 +173,26 @@ fun UserPlantDetailsScreen(
                             label = { Text(text="Custom Name", fontFamily = LexendFontFamily,
                                 fontWeight = FontWeight.Light,
                                 fontSize = 20.sp,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                                    .align(Alignment.CenterHorizontally)) }
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(horizontal = 16.dp))
+                                     }
                         )
-                        EditablePlantImage(editableImageUri) { newUri ->
-                            editableImageUri = newUri
-                        }
+                        EditablePlantImage(
+                            imageUri = editableImageUri,
+                            onImageSelected = { newUri ->
+                                editableImageUri = newUri
+                            },
+                            context = LocalContext.current
+                        )
                     } else {
-                        Text(editableCustomName.ifEmpty { "No Custom Name" })
+                        Text(text = editableCustomName.ifEmpty { "No Custom Name" },
+                            fontFamily = LexendFontFamily,
+                            fontWeight = FontWeight.Light,
+                            fontSize = 20.sp,
+                            modifier = Modifier
+                                .padding(bottom = 8.dp)
+                                .align(Alignment.CenterHorizontally) // Align text to center
+                        )
                         PlantImage(editableImageUri)
                     }
 
@@ -236,39 +280,61 @@ fun UserPlantDetailsScreen(
     }
 }
 
-@OptIn(ExperimentalCoilApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class)
 @Composable
-fun EditablePlantImage(imageUri: String, onImageSelected: (String) -> Unit) {
-    var showDialog by remember { mutableStateOf(false) }
+fun EditablePlantImage(imageUri: String, onImageSelected: (String) -> Unit, context: Context) {
+    var isPermissionGranted by remember { mutableStateOf(true) } // Tracks if the permission is granted
+    val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { onImageSelected(uri.toString()) }
+    }
 
-    if (showDialog) {
-        // Implement your image picker dialog here.
-        // For example, this could be a dialog that allows picking an image from the gallery.
-        // After picking an image, you should call onImageSelected with the new image URI.
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+        if (isGranted) {
+            imagePickerLauncher.launch("image/*")
+        } else {
+            isPermissionGranted = false // Permission denied, disable image picking
+        }
+    }
+
+    IconButton(onClick = {
+        if (isPermissionGranted) {
+            val permissionToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                android.Manifest.permission.READ_MEDIA_IMAGES
+            } else {
+                android.Manifest.permission.READ_EXTERNAL_STORAGE
+            }
+
+            // Check if the permission is already granted
+            if (ContextCompat.checkSelfPermission(context, permissionToRequest) == PackageManager.PERMISSION_GRANTED) {
+                imagePickerLauncher.launch("image/*")
+            } else {
+                permissionLauncher.launch(permissionToRequest)
+            }
+        }
+    }, enabled = isPermissionGranted) {
+        Icon(
+            imageVector = Icons.Default.Edit,
+            contentDescription = "Change Image",
+            modifier = Modifier
+                .background(Color.White.copy(alpha = 0.5f), CircleShape)
+        )
+    }
+
+    val painter = if (imageUri.isNotEmpty()) {
+        rememberImagePainter(data = imageUri)
+    } else {
+        painterResource(id = R.drawable.plantitem)
     }
 
     Box(contentAlignment = Alignment.BottomEnd) {
-        // Display the image
         Image(
-            painter = rememberImagePainter(data = imageUri),
-            contentDescription = "Plant Image",
+            painter = painter,
+            contentDescription = "Editable Plant Image",
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp)
                 .clip(RoundedCornerShape(16.dp))
         )
-
-        // Overlay icon to change the image
-        IconButton(onClick = { showDialog = true }) {
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = "Change Image",
-                modifier = Modifier.background(
-                    color = Color.White.copy(alpha = 0.5f),
-                    shape = CircleShape
-                )
-            )
-        }
     }
 }
 
@@ -291,7 +357,9 @@ fun PlantImage(imageUri: String) {
     @Composable
     fun TopAppBarWithBackButton(title: String?, onBackClick: () -> Unit) {
         TopAppBar(
-            title = { Text(text = title ?: "") },
+            title = { Text(text = title ?: "", fontFamily = LexendFontFamily,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 30.sp) },
             navigationIcon = {
                 IconButton(onClick = onBackClick) {
                     Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")

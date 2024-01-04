@@ -4,14 +4,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -22,10 +20,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallTopAppBar
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -38,34 +33,28 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.plantcare.R
-import com.example.plantcare.data.model.DefaultImage
 import com.example.plantcare.data.model.Plant
 import com.example.plantcare.data.model.UserPlantDto
 import com.example.plantcare.data.model.WaterRequirement
 import com.example.plantcare.data.model.WateringTime
 import com.example.plantcare.ui.components.PlantInfoRow
-import com.example.plantcare.ui.components.TopBarWithBackButton
 import com.example.plantcare.ui.theme.LexendFontFamily
 import com.example.plantcare.ui.theme.SageGreen
 import com.example.plantcare.ui.viewmodel.PlantViewModel
 import com.example.plantcare.ui.viewmodel.UserPlantViewModel
 import com.google.accompanist.coil.rememberCoilPainter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlantDetailsScreen(
     plantId: String,
@@ -80,13 +69,44 @@ fun PlantDetailsScreen(
         plantViewModel.getPlantDetails(plantId)
     }
 
-    // If plant details have been fetched, display the content
-    plant?.let {
-        PlantDetailsContent(plant = it, userPlantViewModel = userPlantViewModel, navController = navController)
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text(text = plant?.commonName ?: "", fontFamily = LexendFontFamily,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 30.sp) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Box(modifier = Modifier.padding(padding)) {
+            if (plant == null) {
+                // Show placeholder
+                Text(
+                    text = "Loading...",
+                    modifier = Modifier.align(Alignment.Center),
+                    fontFamily = LexendFontFamily,
+                    fontWeight = FontWeight.Light,
+                    fontSize = 20.sp
+                )
+            } else {
+// If plant details have been fetched, display the content
+                plant?.let {
+                    PlantDetailsContent(
+                        plant = it,
+                        userPlantViewModel = userPlantViewModel,
+                        navController = navController
+                    )
+                }
+            }
+        }
     }
+
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlantDetailsContent(plant: Plant, userPlantViewModel: UserPlantViewModel, navController: NavController) {
     val gradientHeight = 100.dp
@@ -112,21 +132,6 @@ fun PlantDetailsContent(plant: Plant, userPlantViewModel: UserPlantViewModel, na
             }
         }
     }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text(text = plant.commonName ?: "", fontFamily = LexendFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 30.sp) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        }
-    ) { padding ->
-        Box(modifier = Modifier.padding(padding)) {
             Column (modifier = Modifier.fillMaxSize()){
                 Text(
                     text = plant.scientificName.firstOrNull() ?: "Unknown",
@@ -252,19 +257,27 @@ fun PlantDetailsContent(plant: Plant, userPlantViewModel: UserPlantViewModel, na
                 }
             }
         }
-    }
-}
+
 
 // Utility function to format watering time and amount
 fun formatWateringTime(wateringTime: WateringTime?): String {
     // Check if wateringTime is not null
     return if (wateringTime != null) {
-        // Assuming wateringTime has fields `value` and `unit`
-        "${wateringTime.value} ${wateringTime.unit}"
+        val value = wateringTime.value
+        // If value is a range, split and calculate the average
+        if (value.contains("-")) {
+            val parts = value.split("-").map { it.trim().toIntOrNull() ?: 0 }
+            val average = if (parts.size == 2) (parts[0] + parts[1]) / 2 else 0
+            "$average ${wateringTime.unit}"
+        } else {
+            // If value is a single number
+            "$value ${wateringTime.unit}"
+        }
     } else {
         "Unknown"
     }
 }
+
 
 fun formatWaterRequirement(waterRequirements: List<WaterRequirement>?): String {
     // Check if waterRequirements is not null and not empty

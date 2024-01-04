@@ -82,21 +82,12 @@ public class Plant {
 
     private WaterRequirement jsonNodeToWaterRequirement(JsonNode jsonNode) {
         String unit = jsonNode.has("unit") ? jsonNode.get("unit").asText() : null;
-        int value = 0;
-        if (jsonNode.has("value")) {
-            String valueStr = jsonNode.get("value").asText();
-            if (valueStr.contains("-")) {
-                // Handle range, e.g., "2-3"
-                String[] parts = valueStr.split("-");
-                int min = Integer.parseInt(parts[0]);
-                int max = Integer.parseInt(parts[1]);
-                value = (min + max) / 2; // Average, or choose min/max based on your requirement
-            } else {
-                value = jsonNode.get("value").asInt();
-            }
-        }
+        int value = jsonNode.has("value") ? jsonNode.get("value").asInt() : 0;
         return new WaterRequirement(unit, value);
     }
+
+
+
 
     public String getImageUrl() {
         if (defaultImage != null) {
