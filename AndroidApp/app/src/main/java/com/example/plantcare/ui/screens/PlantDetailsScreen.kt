@@ -224,9 +224,13 @@ fun PlantDetailsContent(plant: Plant, userPlantViewModel: UserPlantViewModel, na
                 Button(
                     onClick = {
                         //val scientificName = plant.scientificName.firstOrNull() ?: "Unknown"
+                        val wateringFrequency = if (plant.wateringTime?.value?.contains("-") == true) {
+                            val parts = plant.wateringTime.value.split("-").map { it.trim().toIntOrNull() ?: 0 }
+                            if (parts.size == 2) (parts[0] + parts[1]) / 2 else 0
+                        } else {
+                            plant.wateringTime?.value?.toIntOrNull() ?: 0
+                        }
 
-                        // Access the value and unit directly from the WateringTime object
-                        val wateringFrequency = plant.wateringTime?.value?.toIntOrNull() ?: 0 // Default to 0 if not available
                         val frequencyUnit = plant.wateringTime?.unit ?: "days" // Default to "days" if not available
 
                         val userPlantDto = UserPlantDto(
