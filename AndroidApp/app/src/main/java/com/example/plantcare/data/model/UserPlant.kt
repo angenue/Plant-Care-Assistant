@@ -3,7 +3,7 @@ package com.example.plantcare.data.model
 import java.time.LocalTime
 
 data class UserPlant(
-    val userId: Long,
+    val id: Long,
     val apiPlantId: String,
     val scientificName: String?,
     val customName: String?,

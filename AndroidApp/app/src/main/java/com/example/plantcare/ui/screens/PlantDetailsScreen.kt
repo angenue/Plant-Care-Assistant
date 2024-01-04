@@ -53,6 +53,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.plantcare.R
 import com.example.plantcare.data.model.DefaultImage
 import com.example.plantcare.data.model.Plant
+import com.example.plantcare.data.model.UserPlantDto
 import com.example.plantcare.data.model.WaterRequirement
 import com.example.plantcare.data.model.WateringTime
 import com.example.plantcare.ui.components.PlantInfoRow
@@ -60,31 +61,35 @@ import com.example.plantcare.ui.components.TopBarWithBackButton
 import com.example.plantcare.ui.theme.LexendFontFamily
 import com.example.plantcare.ui.theme.SageGreen
 import com.example.plantcare.ui.viewmodel.PlantViewModel
+import com.example.plantcare.ui.viewmodel.UserPlantViewModel
 import com.google.accompanist.coil.rememberCoilPainter
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlantDetailsScreen(
     plantId: String,
-    viewModel: PlantViewModel,
+    plantViewModel: PlantViewModel,
+    userPlantViewModel: UserPlantViewModel,
     navController: NavController
 ) {
     // Assuming you have a function in your ViewModel to fetch plant details
-    val plant by viewModel.plantDetails.observeAsState()
+    val plant by plantViewModel.plantDetails.observeAsState()
 
-    // Call the function to load plant details when the composable enters the composition
+    // New code to observe addPlantStatus from UserPlantViewModel
+    val addPlantStatus by userPlantViewModel.addPlantStatus.observeAsState()
+
     LaunchedEffect(plantId) {
-        viewModel.getPlantDetails(plantId)
+        plantViewModel.getPlantDetails(plantId)
     }
 
+    // If plant details have been fetched, display the content
     plant?.let {
-        PlantDetailsContent(plant = it, navController = navController)
+        PlantDetailsContent(plant = it, userPlantViewModel = userPlantViewModel, navController = navController)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlantDetailsContent(plant: Plant, navController: NavController) {
+fun PlantDetailsContent(plant: Plant, userPlantViewModel: UserPlantViewModel, navController: NavController) {
     val gradientHeight = 100.dp
     val gradientBrush = Brush.verticalGradient(
         colors = listOf(Color.Transparent, Color.White),
@@ -117,11 +122,11 @@ fun PlantDetailsContent(plant: Plant, navController: NavController) {
                         .align(Alignment.CenterHorizontally)
                 )
 
-                /*val imagePainter = rememberCoilPainter(
+                val imagePainter = rememberCoilPainter(
                     request = plant.defaultImage.mediumUrl ?: R.drawable.plantitem,
                     fadeIn = true,
-                )*/
-                val imagePainter = painterResource(id = R.drawable.plantitem)
+                )
+                //val imagePainter = painterResource(id = R.drawable.plantitem)
                 Image(
                     painter = imagePainter,
                     contentDescription = "Plant image",
@@ -203,7 +208,23 @@ fun PlantDetailsContent(plant: Plant, navController: NavController) {
 
                 Button(
                     onClick = {
-                        // TODO: Add or remove plant from user's collection
+                        val scientificName = plant.scientificName.firstOrNull() ?: "Unknown"
+
+                        // Access the value and unit directly from the WateringTime object
+                        val wateringFrequency = plant.wateringTime?.value?.toIntOrNull() ?: 0 // Default to 0 if not available
+                        val frequencyUnit = plant.wateringTime?.unit ?: "days" // Default to "days" if not available
+
+                        val userPlantDto = UserPlantDto(
+                            apiPlantId = plant.id,
+                            scientificName = scientificName,
+                            customName = null,
+                            pictureUrl = plant.defaultImage.mediumUrl,
+                            notificationsEnabled = false,
+                            notificationTime = null, // or a user-defined time if you have one
+                            wateringFrequency = wateringFrequency,
+                            frequencyUnit = frequencyUnit
+                        )
+                        userPlantViewModel.addPlantToUserCollection(userPlantDto)
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = SageGreen),
                     modifier = Modifier
