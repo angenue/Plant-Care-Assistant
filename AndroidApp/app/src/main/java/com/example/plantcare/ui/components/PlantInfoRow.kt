@@ -53,6 +53,7 @@ fun PlantInfoRow(plant: Plant) {
             icon = when (plant.careLevel?.lowercase(Locale.getDefault()) ?: "") {
                 "low" -> Icons.Default.ThumbUp
                 "medium" -> Icons.Default.ThumbsUpDown
+                "moderate" -> Icons.Default.ThumbsUpDown
                 "high" -> Icons.Default.ThumbDown
                 else -> Icons.Default.HelpOutline // Null or unknown
             },
