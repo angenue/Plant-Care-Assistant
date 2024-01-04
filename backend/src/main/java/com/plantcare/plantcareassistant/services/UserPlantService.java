@@ -66,7 +66,7 @@ public class UserPlantService {
 
         //retrieving user id
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Plant not found with id " + userPlantDto.getUserId()));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id " + userId));
 
         userPlant.setUser(user);
 

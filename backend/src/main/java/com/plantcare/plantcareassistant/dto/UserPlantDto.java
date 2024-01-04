@@ -11,8 +11,6 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserPlantDto {
-
-    private Long userId;
     private String apiPlantId;
     private String scientificName;
     private String customName;
