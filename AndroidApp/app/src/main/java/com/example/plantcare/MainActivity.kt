@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.plantcare.ui.screens.HomeScreen
 import com.example.plantcare.ui.screens.LoginScreen
+import com.example.plantcare.ui.screens.PlantDetailsScreen
 import com.example.plantcare.ui.screens.RegisterScreen
 import com.example.plantcare.ui.screens.SearchScreen
 import com.example.plantcare.ui.theme.PlantCareTheme
@@ -44,6 +45,14 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("search") {
                         SearchScreen(plantViewModel, navController)
+                    }
+                    composable("plantDetails/{plantId}") { backStackEntry ->
+                        PlantDetailsScreen(
+                            plantId = backStackEntry.arguments?.getString("plantId") ?: "",
+                            plantViewModel = plantViewModel,
+                            userPlantViewModel = userPlantViewModel,
+                            navController = navController
+                        )
                     }
                 }
             }

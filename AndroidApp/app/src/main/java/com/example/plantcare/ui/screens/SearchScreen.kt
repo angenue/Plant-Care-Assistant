@@ -103,7 +103,7 @@ import com.google.accompanist.coil.rememberCoilPainter
                         // Display search results
                         LazyColumn(modifier = Modifier.weight(1f)) {
                             items(searchResults) { plant ->
-                                SearchResultItem(plant, navController)
+                                SearchResultItem(plant, navController, onClick = { navController.navigate("plantDetails/${plant.id}") })
                             }
                         }
                     }
@@ -138,7 +138,7 @@ import com.google.accompanist.coil.rememberCoilPainter
 }
 
     @Composable
-    fun SearchResultItem(plant: SimplePlant, navController: NavController) {
+    fun SearchResultItem(plant: SimplePlant, navController: NavController, onClick: () -> Unit) {
         val imagePainter = if (plant.imageUrl.isEmpty()) {
             painterResource(id = R.drawable.plantitem) // Default image
         } else {
@@ -149,7 +149,8 @@ import com.google.accompanist.coil.rememberCoilPainter
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { navController.navigate("plantDetails/${plant.id}") }
-                .padding(8.dp),
+                .padding(8.dp)
+                .clickable(onClick = onClick),
             verticalAlignment = Alignment.CenterVertically
         ) {
 

@@ -64,10 +64,6 @@ class PlantViewModel @Inject constructor(
             if (response.isSuccessful) {
                 plantDetails.value = response.body()
 
-                // Placeholder for future implementation
-                // TODO: Pass `plantDetails` to the plant details screen when implemented
-
-                // Optionally refresh recently searched list
                 loadRecentlySearchedPlants()
             } else {
                 // Handle errors
@@ -75,5 +71,4 @@ class PlantViewModel @Inject constructor(
         }
     }
 
-    // additional functions
 }

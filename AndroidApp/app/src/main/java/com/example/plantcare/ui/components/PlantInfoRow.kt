@@ -38,6 +38,7 @@ import com.example.plantcare.data.model.Plant
 import com.example.plantcare.ui.theme.ArmyGreen
 import com.example.plantcare.ui.theme.LexendFontFamily
 import com.example.plantcare.ui.theme.SageGreen
+import java.util.Locale
 
 @Composable
 fun PlantInfoRow(plant: Plant) {
@@ -49,13 +50,13 @@ fun PlantInfoRow(plant: Plant) {
     ) {
         // Care Level
         PlantInfoIcon(
-            icon = when (plant.careLevel.lowercase()) {
+            icon = when (plant.careLevel?.lowercase(Locale.getDefault()) ?: "") {
                 "low" -> Icons.Default.ThumbUp
                 "medium" -> Icons.Default.ThumbsUpDown
                 "high" -> Icons.Default.ThumbDown
                 else -> Icons.Default.HelpOutline // Null or unknown
             },
-            text = "Care: ${plant.careLevel}"
+            text = "Care: ${plant.careLevel ?: "Unknown"}"
         )
 
         // Indoor/Outdoor

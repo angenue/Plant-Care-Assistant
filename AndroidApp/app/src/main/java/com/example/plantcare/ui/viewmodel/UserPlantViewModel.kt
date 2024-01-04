@@ -47,6 +47,7 @@ class UserPlantViewModel @Inject constructor(private val userPlantService: UserP
                 val response = userPlantService.addUserPlant(userPlantDto)
                 if (response.isSuccessful) {
                     _addPlantStatus.value = Result.success(response.body()!!)
+                    loadUserPlants()
                 } else {
                     _addPlantStatus.value = Result.failure(
                         RuntimeException("Error adding plant: ${response.errorBody()?.string()}"))

@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallTopAppBar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -74,9 +75,6 @@ fun PlantDetailsScreen(
     // Assuming you have a function in your ViewModel to fetch plant details
     val plant by plantViewModel.plantDetails.observeAsState()
 
-    // New code to observe addPlantStatus from UserPlantViewModel
-    val addPlantStatus by userPlantViewModel.addPlantStatus.observeAsState()
-
     LaunchedEffect(plantId) {
         plantViewModel.getPlantDetails(plantId)
     }
@@ -97,22 +95,38 @@ fun PlantDetailsContent(plant: Plant, userPlantViewModel: UserPlantViewModel, na
         endY = with(LocalDensity.current) { gradientHeight.toPx() } // Gradient ends at the bottom of the spacer
     )
 
+    val addPlantStatus by userPlantViewModel.addPlantStatus.observeAsState()
+
+    LaunchedEffect(addPlantStatus) {
+        addPlantStatus?.let { result ->
+            if (result.isSuccess) {
+                // Navigate to the home screen
+                navController.navigate("home") {
+                    popUpTo(navController.graph.startDestinationId) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
-            TopBarWithBackButton(onBackClick = { navController.popBackStack() })
+            TopAppBar(title = { Text(text = plant.commonName ?: "", fontFamily = LexendFontFamily,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 30.sp) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
         }
     ) { padding ->
         Box(modifier = Modifier.padding(padding)) {
             Column (modifier = Modifier.fillMaxSize()){
-                // Plant name and scientific name
-                Text(
-                    text = plant.commonName,
-                    fontFamily = LexendFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 30.sp,
-                    modifier = Modifier.padding(vertical = 8.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
                 Text(
                     text = plant.scientificName.firstOrNull() ?: "Unknown",
                     fontFamily = LexendFontFamily,
@@ -133,12 +147,6 @@ fun PlantDetailsContent(plant: Plant, userPlantViewModel: UserPlantViewModel, na
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(300.dp)
-                        .graphicsLayer {
-                            // Apply alpha mask for fade effect
-                            alpha = 0.7f
-                            shape = RoundedCornerShape(16.dp)
-                            clip = true
-                        }
                 )
 
 
@@ -288,7 +296,7 @@ fun StyledPlantText(label: String, content: String, labelColor: Color, contentCo
     )
 }
 
-@Preview(showBackground = true)
+/*@Preview(showBackground = true)
 @Composable
 fun PlantDetailsScreenPreview() {
     // Create a mock Plant object with sample data for preview
@@ -308,5 +316,5 @@ fun PlantDetailsScreenPreview() {
         imageUrl = ""
     )
     PlantDetailsContent(plant = samplePlant, navController = rememberNavController())
-}
+}*/
 
