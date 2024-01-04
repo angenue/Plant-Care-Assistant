@@ -3,6 +3,7 @@ package com.example.plantcare.data.network
 import com.example.plantcare.data.model.CombinedPlantDto
 import com.example.plantcare.data.model.UserPlant
 import com.example.plantcare.data.model.UserPlantDto
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -53,11 +54,12 @@ interface UserPlantService {
 
     // Endpoint to update the picture of a specific UserPlant
     @PUT("/api/userplants/{userPlantId}/picture")
-    suspend fun updateUserPlantPicture(@Path("userPlantId") userPlantId: Long, @Body newPicture: String): Response<UserPlant>
+    suspend fun updateUserPlantPicture(@Path("userPlantId") userPlantId: Long, @Body newPicture: String): UserPlant
 
     // Endpoint to update the name of a specific UserPlant
     @PUT("/api/userplants/{userPlantId}/name")
-    suspend fun updatePlantName(@Path("userPlantId") userPlantId: Long, @Body newName: String): Response<UserPlant>
+    suspend fun updatePlantName(@Path("userPlantId") userPlantId: Long,
+                        @Body newName: String):UserPlant
 
     // Endpoint to delete a specific UserPlant
     @DELETE("/api/userplants/{userPlantId}")

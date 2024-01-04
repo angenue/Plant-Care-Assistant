@@ -144,10 +144,11 @@ fun UserPlantDetailsScreen(
                 FloatingActionButton(onClick = {
                     if (isEditing) {
                         // Call ViewModel functions to update the plant
-                        viewModel.updatePlantName(userPlantId.toLong(), editableCustomName)
+                        viewModel.updatePlantName(userPlantId.toLong(), editableCustomName.trim())
                         if (editableImageUri.isNotEmpty()) {
-                            viewModel.updateUserPlantPicture(userPlantId.toLong(), editableImageUri)
+                            viewModel.updateUserPlantPicture(userPlantId.toLong(), editableImageUri.trim())
                         }
+
                     } else {
                         isEditing = true
                     }

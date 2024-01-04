@@ -23,7 +23,10 @@ data class Plant(
     val description: String,
     val sunlight: Set<String>,
 
+    @SerializedName("depth_water_requirement")
     val depthWaterRequirement: List<WaterRequirement>?,
+
+    @SerializedName("watering_general_benchmark")
     val wateringTime: WateringTime?,
 
     val imageUrl: String

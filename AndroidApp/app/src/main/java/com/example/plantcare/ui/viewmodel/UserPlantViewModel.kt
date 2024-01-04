@@ -85,14 +85,9 @@ class UserPlantViewModel @Inject constructor(private val userPlantService: UserP
     fun updateUserPlantPicture(userPlantId: Long, newPicture: String) {
         viewModelScope.launch {
             try {
-                val response = userPlantService.updateUserPlantPicture(userPlantId, newPicture)
-                if (response.isSuccessful) {
-                    _updatePlantStatus.value = OperationStatus.Success(response.body()!!)
-                    getPlantDetails(userPlantId)
-                } else {
-                    _updatePlantStatus.value = OperationStatus.Error(
-                        RuntimeException("Error updating plant picture: ${response.errorBody()?.string()}"))
-                }
+                val updatedUserPlant = userPlantService.updateUserPlantPicture(userPlantId, newPicture)
+                _updatePlantStatus.value = OperationStatus.Success(updatedUserPlant)
+                getPlantDetails(userPlantId)
             } catch (e: Exception) {
                 _updatePlantStatus.value = OperationStatus.Error(e)
             }
@@ -102,19 +97,16 @@ class UserPlantViewModel @Inject constructor(private val userPlantService: UserP
     fun updatePlantName(userPlantId: Long, newName: String) {
         viewModelScope.launch {
             try {
-                val response = userPlantService.updatePlantName(userPlantId, newName)
-                if (response.isSuccessful) {
-                    _updatePlantStatus.value = OperationStatus.Success(response.body()!!)
-                    getPlantDetails(userPlantId)
-                } else {
-                    _updatePlantStatus.value = OperationStatus.Error(
-                        RuntimeException("Error updating plant name: ${response.errorBody()?.string()}"))
-                }
+                val updatedUserPlant = userPlantService.updatePlantName(userPlantId, newName)
+                _updatePlantStatus.value = OperationStatus.Success(updatedUserPlant)
+                getPlantDetails(userPlantId)
             } catch (e: Exception) {
                 _updatePlantStatus.value = OperationStatus.Error(e)
             }
         }
     }
+
+
 
     fun deleteUserPlant(userPlantId: Long) {
         viewModelScope.launch {
