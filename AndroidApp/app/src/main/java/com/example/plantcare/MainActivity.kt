@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
                             navController = navController
                         )
                     }
-                    composable("/{userPlantId}") { backStackEntry ->
+                    composable("{userPlantId}") { backStackEntry ->
                         UserPlantDetailsScreen(
                             userPlantId = backStackEntry.arguments?.getString("userPlantId") ?: "",
                             viewModel = userPlantViewModel,
