@@ -1,15 +1,19 @@
 package com.example.plantcare.data.network
 
 import com.example.plantcare.data.model.CombinedPlantDto
+import com.example.plantcare.data.model.ImageUploadResponse
 import com.example.plantcare.data.model.UserPlant
 import com.example.plantcare.data.model.UserPlantDto
+import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 import java.time.LocalDateTime
@@ -64,5 +68,9 @@ interface UserPlantService {
     // Endpoint to delete a specific UserPlant
     @DELETE("/api/userplants/{userPlantId}")
     suspend fun deleteUserPlant(@Path("userPlantId") userPlantId: Long): Response<Unit>
+
+    @Multipart
+    @POST("/api/userplants/{userPlantId}/uploadImage")
+    suspend fun uploadImage(@Path("userPlantId") userPlantId: Long, @Part file: MultipartBody.Part): Response<ImageUploadResponse>
 
 }

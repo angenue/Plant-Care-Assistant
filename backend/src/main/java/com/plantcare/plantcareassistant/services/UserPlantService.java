@@ -9,9 +9,18 @@ import com.plantcare.plantcareassistant.repository.UserPlantRepository;
 import com.plantcare.plantcareassistant.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 @Service
@@ -20,7 +29,8 @@ public class UserPlantService {
     private final UserPlantRepository userPlantRepository;
     private final UserRepository userRepository;
     private final PlantService plantService;
-
+    @Value("${app.uploaded-images-path}")
+    private String imageStoragePath;
     @Autowired
     public UserPlantService(UserPlantRepository userPlantRepository, UserRepository userRepository, PlantService plantService) {
         this.userPlantRepository = userPlantRepository;
@@ -99,6 +109,28 @@ public class UserPlantService {
         userPlant.setPictureUrl(newPicture);
         return userPlantRepository.save(userPlant);
     }
+
+    public String storeImageAndReturnUrl(Long userPlantId, MultipartFile file) throws IOException {
+        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+
+        // Resolve the path relative to the current working directory
+        Path directoryPath = Paths.get(imageStoragePath);
+        if (!Files.exists(directoryPath)) {
+            Files.createDirectories(directoryPath);
+        }
+        Path filePath = directoryPath.resolve(fileName);
+
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        // Update UserPlant with the URL
+        UserPlant userPlant = userPlantRepository.findById(userPlantId)
+                .orElseThrow(() -> new RuntimeException("Plant not found"));
+        userPlant.setPictureUrl("/images/" + fileName);
+        userPlantRepository.save(userPlant);
+
+        return userPlant.getPictureUrl();
+    }
+
 
 
     public UserPlant updatePlantName(Long userPlantId, Long userId, String newName) {

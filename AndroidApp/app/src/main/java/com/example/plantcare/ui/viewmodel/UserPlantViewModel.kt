@@ -1,5 +1,9 @@
 package com.example.plantcare.ui.viewmodel
 
+import android.content.ContentResolver
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,8 +12,15 @@ import com.example.plantcare.data.model.CombinedPlantDto
 import com.example.plantcare.data.model.UserPlant
 import com.example.plantcare.data.model.UserPlantDto
 import com.example.plantcare.data.network.UserPlantService
+import com.example.plantcare.util.RetrofitService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,9 +38,12 @@ class UserPlantViewModel @Inject constructor(private val userPlantService: UserP
     private val _updatePlantStatus = MutableLiveData<OperationStatus<UserPlant>>()
     val updatePlantStatus: LiveData<OperationStatus<UserPlant>> = _updatePlantStatus
 
+    private val _uploadImageStatus = MutableLiveData<OperationStatus<String>>()
+    val uploadImageStatus: LiveData<OperationStatus<String>> = _uploadImageStatus
+
+
     private val _deletePlantStatus = MutableLiveData<OperationStatus<Boolean>>()
     val deletePlantStatus: LiveData<OperationStatus<Boolean>> = _deletePlantStatus
-
 
     init {
         loadUserPlants()
@@ -82,7 +96,7 @@ class UserPlantViewModel @Inject constructor(private val userPlantService: UserP
         }
     }
 
-    fun updateUserPlantPicture(userPlantId: Long, newPicture: String) {
+    /*fun updateUserPlantPicture(userPlantId: Long, newPicture: String) {
         viewModelScope.launch {
             try {
                 val updatedUserPlant = userPlantService.updateUserPlantPicture(userPlantId, newPicture)
@@ -92,7 +106,7 @@ class UserPlantViewModel @Inject constructor(private val userPlantService: UserP
                 _updatePlantStatus.value = OperationStatus.Error(e)
             }
         }
-    }
+    }*/
 
     fun updatePlantName(userPlantId: Long, newName: String) {
         viewModelScope.launch {
@@ -102,6 +116,28 @@ class UserPlantViewModel @Inject constructor(private val userPlantService: UserP
                 getPlantDetails(userPlantId)
             } catch (e: Exception) {
                 _updatePlantStatus.value = OperationStatus.Error(e)
+            }
+        }
+    }
+
+    fun uploadUserPlantImage(userPlantId: Long, imageUri: Uri, context: Context) {
+        viewModelScope.launch {
+            try {
+                val file = uriToFile(imageUri, context)
+                val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+                val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+                // Use userPlantService for the network request
+                val response = userPlantService.uploadImage(userPlantId, body)
+                if (response.isSuccessful && response.body() != null) {
+                    _uploadImageStatus.value = OperationStatus.Success(response.body()!!.imageUrl)
+                    getPlantDetails(userPlantId)
+                } else {
+                    _uploadImageStatus.value = OperationStatus.Error(
+                        RuntimeException("Error uploading image: ${response.errorBody()?.string()}"))
+                }
+            } catch (e: Exception) {
+                _uploadImageStatus.value = OperationStatus.Error(e)
             }
         }
     }
@@ -124,6 +160,38 @@ class UserPlantViewModel @Inject constructor(private val userPlantService: UserP
             }
         }
     }
+
+    fun clearUploadStatus() {
+        _uploadImageStatus.value = null
+    }
+
+    private fun uriToFile(selectedImageUri: Uri, context: Context): File {
+        val contentResolver = context.contentResolver
+        val myFile = File(context.cacheDir, contentResolver.getFileName(selectedImageUri))
+
+        val inputStream = contentResolver.openInputStream(selectedImageUri)
+        inputStream?.use { input ->
+            FileOutputStream(myFile).use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        return myFile
+    }
+
+
+    private fun ContentResolver.getFileName(uri: Uri): String {
+        var name = ""
+        val returnCursor = this.query(uri, null, null, null, null)
+        if (returnCursor != null) {
+            val nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            returnCursor.moveToFirst()
+            name = returnCursor.getString(nameIndex)
+            returnCursor.close()
+        }
+        return name
+    }
+
 }
 
 sealed class OperationStatus<out T> {

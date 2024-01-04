@@ -3,6 +3,7 @@ package com.plantcare.plantcareassistant.controller;
 import com.plantcare.plantcareassistant.dto.CombinedPlantDto;
 import com.plantcare.plantcareassistant.dto.UserPlantDto;
 import com.plantcare.plantcareassistant.dto.WateringEventDto;
+import com.plantcare.plantcareassistant.entities.ImageUploadResponse;
 import com.plantcare.plantcareassistant.entities.PlantWateringHistory;
 import com.plantcare.plantcareassistant.entities.User;
 import com.plantcare.plantcareassistant.entities.UserPlant;
@@ -16,6 +17,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -124,6 +126,16 @@ public class UserPlantController {
         Long currentUserId = getCurrentUserId();
         UserPlant updatedUserPlant = userPlantService.updateUserPlantPicture(userPlantId, currentUserId, newPicture);
         return ResponseEntity.ok(updatedUserPlant);
+    }
+
+    @PostMapping("/{userPlantId}/uploadImage")
+    public ResponseEntity<?> uploadImage(@PathVariable Long userPlantId, @RequestParam("file") MultipartFile file) {
+        try {
+            String imageUrl = userPlantService.storeImageAndReturnUrl(userPlantId, file);
+            return ResponseEntity.ok(new ImageUploadResponse(imageUrl));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 
     @PutMapping("/{userPlantId}/name")

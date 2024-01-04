@@ -80,42 +80,35 @@ fun UserPlantDetailsScreen(
     viewModel: UserPlantViewModel,
     navController: NavController
 ) {
+    val context = LocalContext.current
+
     // Assuming you have a function in your ViewModel to fetch plant details
     val userPlant by viewModel.plantDetails.observeAsState()
     val updateStatus by viewModel.updatePlantStatus.observeAsState()
     val deleteStatus by viewModel.deletePlantStatus.observeAsState()
 
-    val context = LocalContext.current
-
-    // Local state for editing
     var isEditing by remember { mutableStateOf(false) }
     var editableCustomName by remember(userPlant) { mutableStateOf(userPlant?.userPlantDetails?.customName.orEmpty()) }
-    var editableImageUri by remember(userPlant) { mutableStateOf(userPlant?.userPlantDetails?.pictureUrl.orEmpty()) }
 
     LaunchedEffect(userPlantId) {
         viewModel.getPlantDetails(userPlantId.toLong())
     }
+
     LaunchedEffect(updateStatus) {
         updateStatus?.let { result ->
             when (result) {
                 is OperationStatus.Success -> {
-                    // Refresh the details and exit editing mode
-                    viewModel.getPlantDetails(userPlantId.toLong())
                     isEditing = false
                 }
                 is OperationStatus.Error -> {
-                    // Show an error message, e.g., a Toast or Snackbar
                     Toast.makeText(context, "Update failed: ${result.exception.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
-
     deleteStatus?.let { status ->
-        // Handle delete status
         if (status is OperationStatus.Success && status.data) {
-            // Navigate back to home screen if delete is successful
             navController.navigate("home") {
                 popUpTo(navController.graph.startDestinationId)
             }
@@ -140,27 +133,13 @@ fun UserPlantDetailsScreen(
                 })
         },
         floatingActionButton = {
-            if (isEditing) {
-                FloatingActionButton(onClick = {
-                    if (isEditing) {
-                        // Call ViewModel functions to update the plant
-                        viewModel.updatePlantName(userPlantId.toLong(), editableCustomName.trim())
-                        if (editableImageUri.isNotEmpty()) {
-                            viewModel.updateUserPlantPicture(userPlantId.toLong(), editableImageUri.trim())
-                        }
-
-                    } else {
-                        isEditing = true
-                    }
-                }) {
-                    Icon(imageVector = if (isEditing) Icons.Default.Check else Icons.Default.Edit, contentDescription = if (isEditing) "Save" else "Edit")
+            FloatingActionButton(onClick = {
+                if (isEditing) {
+                    viewModel.updatePlantName(userPlantId.toLong(), editableCustomName.trim())
                 }
-            } else {
-                FloatingActionButton(onClick = {
-                    isEditing = true
-                }) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Edit")
-                }
+                isEditing = !isEditing
+            }) {
+                Icon(imageVector = if (isEditing) Icons.Default.Check else Icons.Default.Edit, contentDescription = if (isEditing) "Save" else "Edit")
             }
         }
     ) { padding ->
@@ -174,16 +153,15 @@ fun UserPlantDetailsScreen(
                             label = { Text(text="Custom Name", fontFamily = LexendFontFamily,
                                 fontWeight = FontWeight.Light,
                                 fontSize = 20.sp,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
                                     .padding(horizontal = 16.dp))
                                      }
                         )
                         EditablePlantImage(
-                            imageUri = editableImageUri,
-                            onImageSelected = { newUri ->
-                                editableImageUri = newUri
-                            },
-                            context = LocalContext.current
+                            userPlantId = userPlantId.toLong(),
+                            viewModel = viewModel,
+                            context = context
                         )
                     } else {
                         Text(text = editableCustomName.ifEmpty { "No Custom Name" },
@@ -194,7 +172,7 @@ fun UserPlantDetailsScreen(
                                 .padding(bottom = 8.dp)
                                 .align(Alignment.CenterHorizontally) // Align text to center
                         )
-                        PlantImage(editableImageUri)
+                        PlantImage(imageUri = combinedPlant.userPlantDetails.pictureUrl.orEmpty())
                     }
 
                     Spacer(Modifier.height(8.dp))
@@ -242,7 +220,8 @@ fun UserPlantDetailsScreen(
 
                             Text(
                                 text = combinedPlant.plantDetails.description,
-                                modifier = Modifier.padding(vertical = 8.dp)
+                                modifier = Modifier
+                                    .padding(vertical = 8.dp)
                                     .fillMaxWidth(),
                                 fontFamily = LexendFontFamily,
                                 fontWeight = FontWeight.Light,
@@ -283,56 +262,65 @@ fun UserPlantDetailsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class)
 @Composable
-fun EditablePlantImage(imageUri: String, onImageSelected: (String) -> Unit, context: Context) {
-    var isPickerDialogVisible by remember { mutableStateOf(false) }
+fun EditablePlantImage(
+    userPlantId: Long,
+    viewModel: UserPlantViewModel,
+    context: Context
+) {
     var isPermissionGranted by remember { mutableStateOf(true) }
+    var isPickerDialogVisible by remember { mutableStateOf(false) }
+    var editableImageUri by remember { mutableStateOf("") }
 
-    val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let { onImageSelected(uri.toString()) }
-    }
+    // Observe the current plant details and upload status
+    val userPlant by viewModel.plantDetails.observeAsState()
+    val uploadStatus by viewModel.uploadImageStatus.observeAsState()
 
-    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-        if (isGranted) {
-            imagePickerLauncher.launch("image/*")
-        } else {
-            isPermissionGranted = false
+    // Update the URI when the plant details change
+    LaunchedEffect(userPlant) {
+        userPlant?.let {
+            editableImageUri = it.userPlantDetails.pictureUrl.orEmpty()
         }
     }
 
-    if (isPickerDialogVisible) {
-        AlertDialog(
-            onDismissRequest = { isPickerDialogVisible = false },
-            title = { Text("Edit Image") },
-            text = { Text("Choose an image from the gallery or cancel.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    if (isPermissionGranted) {
-                        val permissionToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            android.Manifest.permission.READ_MEDIA_IMAGES
-                        } else {
-                            android.Manifest.permission.READ_EXTERNAL_STORAGE
-                        }
-
-                        if (ContextCompat.checkSelfPermission(context, permissionToRequest) == PackageManager.PERMISSION_GRANTED) {
-                            imagePickerLauncher.launch("image/*")
-                        } else {
-                            permissionLauncher.launch(permissionToRequest)
-                        }
-                    }
-                    isPickerDialogVisible = false
-                }) {
-                    Text("Choose Image")
+    // Handle image upload status
+    LaunchedEffect(uploadStatus) {
+        uploadStatus?.let { status ->
+            when (status) {
+                is OperationStatus.Success -> {
+                    editableImageUri = status.data // Update with new image URL
+                    viewModel.clearUploadStatus()
                 }
-            },
-            dismissButton = {
-                TextButton(onClick = { isPickerDialogVisible = false }) {
-                    Text("Cancel")
+                is OperationStatus.Error -> {
+                    Toast.makeText(context, "Failed to upload image: ${status.exception.message}", Toast.LENGTH_SHORT).show()
+                    println("Failed to upload image: ${status.exception.message}")
+                    viewModel.clearUploadStatus()
                 }
             }
-        )
+        }
     }
 
-    IconButton(onClick = { isPickerDialogVisible = true }, enabled = isPermissionGranted) {
+    // Launch image picker
+    val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            viewModel.uploadUserPlantImage(userPlantId, it, context)
+        }
+    }
+
+    // Request permissions
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
+        isPermissionGranted = isGranted
+        if (isGranted) {
+            imagePickerLauncher.launch("image/*")
+        }
+    }
+
+    IconButton(onClick = {
+        if (isPermissionGranted) {
+            imagePickerLauncher.launch("image/*")
+        } else {
+            permissionLauncher.launch(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+    }, enabled = isPermissionGranted) {
         Icon(
             imageVector = Icons.Default.Edit,
             contentDescription = "Change Image",
@@ -340,8 +328,8 @@ fun EditablePlantImage(imageUri: String, onImageSelected: (String) -> Unit, cont
         )
     }
 
-    val painter = if (imageUri.isNotEmpty()) {
-        rememberImagePainter(data = imageUri)
+    val painter = if (editableImageUri.isNotEmpty()) {
+        rememberImagePainter(data = editableImageUri)
     } else {
         painterResource(id = R.drawable.plantitem)
     }
@@ -360,11 +348,18 @@ fun EditablePlantImage(imageUri: String, onImageSelected: (String) -> Unit, cont
 
 
 
+
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun PlantImage(imageUri: String) {
+    val painter = if (imageUri.isNotEmpty()) {
+        rememberImagePainter(data = imageUri)
+    } else {
+        painterResource(id = R.drawable.plantitem)
+    }
+
     Image(
-        painter = rememberImagePainter(data = imageUri),
+        painter = painter,
         contentDescription = "Plant Image",
         modifier = Modifier
             .fillMaxWidth()
@@ -372,6 +367,7 @@ fun PlantImage(imageUri: String) {
             .clip(RoundedCornerShape(16.dp))
     )
 }
+
 
 
     @OptIn(ExperimentalMaterial3Api::class)
