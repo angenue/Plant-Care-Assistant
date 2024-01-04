@@ -108,7 +108,7 @@ public class UserPlantService {
             throw new AccessDeniedException("You do not have permission to access this plant");
         }
 
-        userPlant.setPictureUrl(newName);
+        userPlant.setCustomName(newName);
 
         return userPlantRepository.save(userPlant);
     }
