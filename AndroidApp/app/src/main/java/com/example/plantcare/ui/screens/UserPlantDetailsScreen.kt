@@ -284,7 +284,9 @@ fun UserPlantDetailsScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCoilApi::class)
 @Composable
 fun EditablePlantImage(imageUri: String, onImageSelected: (String) -> Unit, context: Context) {
-    var isPermissionGranted by remember { mutableStateOf(true) } // Tracks if the permission is granted
+    var isPickerDialogVisible by remember { mutableStateOf(false) }
+    var isPermissionGranted by remember { mutableStateOf(true) }
+
     val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let { onImageSelected(uri.toString()) }
     }
@@ -293,31 +295,48 @@ fun EditablePlantImage(imageUri: String, onImageSelected: (String) -> Unit, cont
         if (isGranted) {
             imagePickerLauncher.launch("image/*")
         } else {
-            isPermissionGranted = false // Permission denied, disable image picking
+            isPermissionGranted = false
         }
     }
 
-    IconButton(onClick = {
-        if (isPermissionGranted) {
-            val permissionToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                android.Manifest.permission.READ_MEDIA_IMAGES
-            } else {
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
-            }
+    if (isPickerDialogVisible) {
+        AlertDialog(
+            onDismissRequest = { isPickerDialogVisible = false },
+            title = { Text("Edit Image") },
+            text = { Text("Choose an image from the gallery or cancel.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (isPermissionGranted) {
+                        val permissionToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            android.Manifest.permission.READ_MEDIA_IMAGES
+                        } else {
+                            android.Manifest.permission.READ_EXTERNAL_STORAGE
+                        }
 
-            // Check if the permission is already granted
-            if (ContextCompat.checkSelfPermission(context, permissionToRequest) == PackageManager.PERMISSION_GRANTED) {
-                imagePickerLauncher.launch("image/*")
-            } else {
-                permissionLauncher.launch(permissionToRequest)
+                        if (ContextCompat.checkSelfPermission(context, permissionToRequest) == PackageManager.PERMISSION_GRANTED) {
+                            imagePickerLauncher.launch("image/*")
+                        } else {
+                            permissionLauncher.launch(permissionToRequest)
+                        }
+                    }
+                    isPickerDialogVisible = false
+                }) {
+                    Text("Choose Image")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { isPickerDialogVisible = false }) {
+                    Text("Cancel")
+                }
             }
-        }
-    }, enabled = isPermissionGranted) {
+        )
+    }
+
+    IconButton(onClick = { isPickerDialogVisible = true }, enabled = isPermissionGranted) {
         Icon(
             imageVector = Icons.Default.Edit,
             contentDescription = "Change Image",
-            modifier = Modifier
-                .background(Color.White.copy(alpha = 0.5f), CircleShape)
+            modifier = Modifier.background(Color.White.copy(alpha = 0.5f), CircleShape)
         )
     }
 
@@ -338,6 +357,7 @@ fun EditablePlantImage(imageUri: String, onImageSelected: (String) -> Unit, cont
         )
     }
 }
+
 
 
 @OptIn(ExperimentalCoilApi::class)
