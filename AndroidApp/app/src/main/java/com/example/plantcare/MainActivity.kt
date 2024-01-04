@@ -12,6 +12,7 @@ import com.example.plantcare.ui.screens.LoginScreen
 import com.example.plantcare.ui.screens.PlantDetailsScreen
 import com.example.plantcare.ui.screens.RegisterScreen
 import com.example.plantcare.ui.screens.SearchScreen
+import com.example.plantcare.ui.screens.UserPlantDetailsScreen
 import com.example.plantcare.ui.theme.PlantCareTheme
 import com.example.plantcare.ui.viewmodel.PlantViewModel
 import com.example.plantcare.ui.viewmodel.UserPlantViewModel
@@ -51,6 +52,13 @@ class MainActivity : ComponentActivity() {
                             plantId = backStackEntry.arguments?.getString("plantId") ?: "",
                             plantViewModel = plantViewModel,
                             userPlantViewModel = userPlantViewModel,
+                            navController = navController
+                        )
+                    }
+                    composable("/{userPlantId}") { backStackEntry ->
+                        UserPlantDetailsScreen(
+                            userPlantId = backStackEntry.arguments?.getString("userPlantId") ?: "",
+                            viewModel = userPlantViewModel,
                             navController = navController
                         )
                     }

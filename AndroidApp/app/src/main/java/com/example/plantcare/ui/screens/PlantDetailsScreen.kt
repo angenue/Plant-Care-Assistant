@@ -34,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -147,6 +148,7 @@ fun PlantDetailsContent(plant: Plant, userPlantViewModel: UserPlantViewModel, na
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(300.dp)
+                        .clip(RoundedCornerShape(16.dp))
                 )
 
 
@@ -169,8 +171,8 @@ fun PlantDetailsContent(plant: Plant, userPlantViewModel: UserPlantViewModel, na
                     StyledPlantText(
                         label = "Type: ",
                         content = plant.type,
-                        labelColor = Color.Gray, // Set the color you want for the label
-                        contentColor = Color.Black // Set the color you want for the content
+                        labelColor = Color.Gray,
+                        contentColor = Color.Black
                     )
                     StyledPlantText(
                         label = "Watering: ",
@@ -216,7 +218,7 @@ fun PlantDetailsContent(plant: Plant, userPlantViewModel: UserPlantViewModel, na
 
                 Button(
                     onClick = {
-                        val scientificName = plant.scientificName.firstOrNull() ?: "Unknown"
+                        //val scientificName = plant.scientificName.firstOrNull() ?: "Unknown"
 
                         // Access the value and unit directly from the WateringTime object
                         val wateringFrequency = plant.wateringTime?.value?.toIntOrNull() ?: 0 // Default to 0 if not available
@@ -224,7 +226,7 @@ fun PlantDetailsContent(plant: Plant, userPlantViewModel: UserPlantViewModel, na
 
                         val userPlantDto = UserPlantDto(
                             apiPlantId = plant.id,
-                            scientificName = scientificName,
+                            scientificName = plant.commonName,
                             customName = null,
                             pictureUrl = plant.defaultImage.mediumUrl,
                             notificationsEnabled = false,
