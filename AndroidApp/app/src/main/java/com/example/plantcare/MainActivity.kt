@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.plantcare.ui.screens.CameraScreen
 import com.example.plantcare.ui.screens.HomeScreen
 import com.example.plantcare.ui.screens.LoginScreen
 import com.example.plantcare.ui.screens.PlantDetailsScreen
@@ -61,6 +62,12 @@ class MainActivity : ComponentActivity() {
                             viewModel = userPlantViewModel,
                             navController = navController
                         )
+                    }
+                    composable("camera") {
+                        CameraScreen(viewModel = plantViewModel,
+                            onNavigateToPlantDetails = { plantId ->
+                            navController.navigate("plantDetails/$plantId")
+                        })
                     }
                 }
             }

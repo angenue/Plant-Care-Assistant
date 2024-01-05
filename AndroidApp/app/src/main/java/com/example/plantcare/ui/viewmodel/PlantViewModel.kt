@@ -1,9 +1,11 @@
 package com.example.plantcare.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.plantcare.data.model.ImageRequest
 import com.example.plantcare.data.model.Plant
 import com.example.plantcare.data.model.RecentlySearchedPlantsDto
 import com.example.plantcare.data.model.SimplePlant
@@ -12,8 +14,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import retrofit2.Response
 import javax.inject.Inject
+import kotlin.Result
+
 
 @HiltViewModel
 class PlantViewModel @Inject constructor(
@@ -26,49 +29,81 @@ class PlantViewModel @Inject constructor(
     private val _recentlySearched = MutableLiveData<List<RecentlySearchedPlantsDto>>()
     val recentlySearched: LiveData<List<RecentlySearchedPlantsDto>> = _recentlySearched
 
+    private val _plantDetailsResponse = MutableLiveData<OperationStatus<Plant>>()
+    val plantDetailsResponse: LiveData<OperationStatus<Plant>> = _plantDetailsResponse
+
+
     val plantDetails = MutableLiveData<Plant>()
 
     //debounce search query to reduce number of requests
     private var searchJob: Job? = null
 
-    // Function to search plants by query
     fun searchPlants(query: String) {
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
             delay(500)
-            val response: Response<List<SimplePlant>> = plantService.searchPlants(query)
-            if (response.isSuccessful) {
-                _searchResults.value = response.body()
-            } else {
-                // Handle errors (e.g., show a message or log an error)
+            try {
+                val response = plantService.searchPlants(query)
+                if (response.isSuccessful) {
+                    _searchResults.value = response.body()
+                } else {
+                    Log.e("PlantViewModel", "Error searching plants: ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                Log.e("PlantViewModel", "Exception in searchPlants: ${e.message}")
             }
         }
     }
 
-    // Function to load recently searched plants
     fun loadRecentlySearchedPlants() {
         viewModelScope.launch {
-            val response: Response<List<RecentlySearchedPlantsDto>> = plantService.getRecentlySearchedPlants()
-            if (response.isSuccessful) {
-                _recentlySearched.value = response.body()
-            } else {
-                // Handle errors
+            try {
+                val response = plantService.getRecentlySearchedPlants()
+                if (response.isSuccessful) {
+                    _recentlySearched.value = response.body()
+                } else {
+                    Log.e("PlantViewModel", "Error loading recently searched plants: ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                Log.e("PlantViewModel", "Exception in loadRecentlySearchedPlants: ${e.message}")
             }
         }
     }
 
-    // Function to fetch plant details and update recently searched
     fun getPlantDetails(plantId: String) {
         viewModelScope.launch {
-            val response: Response<Plant> = plantService.getPlantDetails(plantId)
-            if (response.isSuccessful) {
-                plantDetails.value = response.body()
-
-                loadRecentlySearchedPlants()
-            } else {
-                // Handle errors
+            try {
+                val response = plantService.getPlantDetails(plantId)
+                if (response.isSuccessful) {
+                    plantDetails.value = response.body()
+                    loadRecentlySearchedPlants()
+                } else {
+                    Log.e("PlantViewModel", "Error fetching plant details: ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                Log.e("PlantViewModel", "Exception in getPlantDetails: ${e.message}")
             }
         }
     }
 
+    fun identifyPlantFromImage(base64Image: String) {
+        viewModelScope.launch {
+            val request = ImageRequest(listOf(base64Image))
+            try {
+                val response = plantService.identifyPlantFromImage(request)
+                if (response.isSuccessful) {
+                    // Update LiveData with the plant details
+                    _plantDetailsResponse.value = OperationStatus.Success(response.body()!!)
+                } else {
+                    _plantDetailsResponse.value = OperationStatus.Error(Exception("Error identifying plant: ${response.errorBody()?.string()}"))
+                }
+            } catch (e: Exception) {
+                _plantDetailsResponse.value = OperationStatus.Error(e)
+                Log.e("PlantViewModel", "Error in identifyPlantFromImage: ${e.message}")
+            }
+        }
+    }
+
+
 }
+

@@ -75,7 +75,7 @@ fun PlantDetailsScreen(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 30.sp) },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { navController.navigate("search") }) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
                     }
                 }
@@ -121,8 +121,7 @@ fun PlantDetailsContent(plant: Plant, userPlantViewModel: UserPlantViewModel, na
     LaunchedEffect(addPlantStatus) {
         addPlantStatus?.let { result ->
             if (result.isSuccess) {
-                // Navigate to the home screen
-                navController.popBackStack("search", inclusive = true)
+                navController.navigate("home")
             }
         }
     }
