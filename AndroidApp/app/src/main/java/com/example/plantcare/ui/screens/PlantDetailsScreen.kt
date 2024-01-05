@@ -122,13 +122,7 @@ fun PlantDetailsContent(plant: Plant, userPlantViewModel: UserPlantViewModel, na
         addPlantStatus?.let { result ->
             if (result.isSuccess) {
                 // Navigate to the home screen
-                navController.navigate("home") {
-                    popUpTo(navController.graph.startDestinationId) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                }
+                navController.popBackStack("search", inclusive = true)
             }
         }
     }

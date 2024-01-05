@@ -173,6 +173,8 @@ fun UserPlantDetailsScreen(
                                 .align(Alignment.CenterHorizontally) // Align text to center
                         )
                         PlantImage(imageUri = combinedPlant.userPlantDetails.pictureUrl.orEmpty())
+                        //PlantImage(imageUri = "http://10.0.2.2:8080" + combinedPlant.userPlantDetails?.pictureUrl.orEmpty())
+
                     }
 
                     Spacer(Modifier.height(8.dp))
@@ -352,10 +354,8 @@ fun EditablePlantImage(
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun PlantImage(imageUri: String) {
-    val painter = if (imageUri.isNotEmpty()) {
-        rememberImagePainter(data = imageUri)
-    } else {
-        painterResource(id = R.drawable.plantitem)
+    val painter = rememberImagePainter(data = imageUri) {
+        error(R.drawable.plantitem)
     }
 
     Image(
