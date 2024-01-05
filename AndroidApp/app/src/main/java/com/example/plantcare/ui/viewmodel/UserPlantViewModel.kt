@@ -237,7 +237,7 @@ class UserPlantViewModel @Inject constructor(private val userPlantService: UserP
         }
     }
 
-    fun updateWateringLog(logId: Long, newWateringDateTime: LocalDateTime, waterAmount: Double) {
+    /*fun updateWateringLog(logId: Long, newWateringDateTime: LocalDateTime, waterAmount: Double) {
         viewModelScope.launch {
             try {
                 val response = userPlantService.updateWateringLog(logId, newWateringDateTime, waterAmount)
@@ -252,17 +252,15 @@ class UserPlantViewModel @Inject constructor(private val userPlantService: UserP
                 _wateringLogUpdateStatus.value = OperationStatus.Error(e)
             }
         }
-    }
+    }*/
 
     fun deleteWateringLog(logId: Long) {
         viewModelScope.launch {
             try {
                 val response = userPlantService.deleteWateringHistory(logId)
                 if (response.isSuccessful) {
-                    // Handle successful deletion
                     _wateringLogDeletionStatus.value = OperationStatus.Success(Unit)
                 } else {
-                    // Handle error scenario
                     _wateringLogDeletionStatus.value = OperationStatus.Error(Exception("Failed to delete watering log"))
                 }
             } catch (e: Exception) {
