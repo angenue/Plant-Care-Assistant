@@ -22,7 +22,6 @@ import android.util.Base64
 @Composable
 fun CameraScreen(viewModel: PlantViewModel, onNavigateToPlantDetails: (String) -> Unit) {
     val context = LocalContext.current
-    // This launcher will handle the result of the image picker intent
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->

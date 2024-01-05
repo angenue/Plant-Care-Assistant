@@ -2,8 +2,11 @@ package com.example.plantcare.data.network
 
 import com.example.plantcare.data.model.CombinedPlantDto
 import com.example.plantcare.data.model.ImageUploadResponse
+import com.example.plantcare.data.model.PlantWateringHistory
 import com.example.plantcare.data.model.UserPlant
 import com.example.plantcare.data.model.UserPlantDto
+import com.example.plantcare.data.model.UserPlantWateringHistoryResponse
+import com.example.plantcare.data.model.WateringEventDto
 import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.Response
@@ -31,18 +34,18 @@ interface UserPlantService {
     suspend fun getUserPlant(@Path("userPlantId") userPlantId: Long): Response<CombinedPlantDto>
 
     // Endpoint to add a watering event to a specific UserPlant
-    /*@POST("/api/userplants/{userPlantId}/watering")
+    @POST("/api/userplants/{userPlantId}/watering")
     suspend fun addWateringEvent(@Path("userPlantId") userPlantId: Long, @Body wateringEventDto: WateringEventDto): Response<PlantWateringHistory>
-*/
+
 
     // Endpoint to get the watering log for a specific UserPlant
     @GET("/api/userplants/{userPlantId}/watering-log")
-    suspend fun getWateringLog(@Path("userPlantId") userPlantId: Long): Response<Map<String, Any>>
+    suspend fun getWateringLog(@Path("userPlantId") userPlantId: Long): Response<UserPlantWateringHistoryResponse>
 
     // Endpoint to update a specific watering log entry
-    /*@PUT("/api/userplants/watering-logs/{logId}")
+    @PUT("/api/userplants/watering-logs/{logId}")
     suspend fun updateWateringLog(@Path("logId") logId: Long, @Body newWateringDateTime: LocalDateTime): Response<PlantWateringHistory>
-*/
+
 
     // Endpoint to delete a specific watering history entry
     @DELETE("/api/userplants/watering-logs/{logId}")

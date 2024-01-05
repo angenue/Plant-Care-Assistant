@@ -9,8 +9,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.plantcare.data.model.CombinedPlantDto
+import com.example.plantcare.data.model.PlantWateringHistory
 import com.example.plantcare.data.model.UserPlant
 import com.example.plantcare.data.model.UserPlantDto
+import com.example.plantcare.data.model.UserPlantWateringHistoryResponse
+import com.example.plantcare.data.model.WateringEventDto
 import com.example.plantcare.data.network.UserPlantService
 import com.example.plantcare.util.RetrofitService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +24,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,6 +48,15 @@ class UserPlantViewModel @Inject constructor(private val userPlantService: UserP
 
     private val _deletePlantStatus = MutableLiveData<OperationStatus<Boolean>>()
     val deletePlantStatus: LiveData<OperationStatus<Boolean>> = _deletePlantStatus
+
+    private val _wateringHistory = MutableLiveData<OperationStatus<UserPlantWateringHistoryResponse>>()
+    val wateringHistory: LiveData<OperationStatus<UserPlantWateringHistoryResponse>> = _wateringHistory
+    private val _wateringLogUpdateStatus = MutableLiveData<OperationStatus<PlantWateringHistory>>()
+    val wateringLogUpdateStatus: LiveData<OperationStatus<PlantWateringHistory>> = _wateringLogUpdateStatus
+
+    private val _wateringLogDeletionStatus = MutableLiveData<OperationStatus<Unit>>()
+    val wateringLogDeletionStatus: LiveData<OperationStatus<Unit>> = _wateringLogDeletionStatus
+
 
     init {
         loadUserPlants()
@@ -191,6 +204,73 @@ class UserPlantViewModel @Inject constructor(private val userPlantService: UserP
         }
         return name
     }
+
+    // Function to fetch watering history
+    fun fetchWateringHistory(userPlantId: Long) {
+        viewModelScope.launch {
+            try {
+                val response = userPlantService.getWateringLog(userPlantId)
+                if (response.isSuccessful && response.body() != null) {
+                    _wateringHistory.value = OperationStatus.Success(response.body()!!)
+                } else {
+                    _wateringHistory.value = OperationStatus.Error(Exception("Failed to fetch watering history"))
+                }
+            } catch (e: Exception) {
+                _wateringHistory.value = OperationStatus.Error(e)
+            }
+        }
+    }
+
+    // Function to add a watering event
+    fun addWateringEvent(userPlantId: Long, wateringEvent: WateringEventDto) {
+        viewModelScope.launch {
+            try {
+                val response = userPlantService.addWateringEvent(userPlantId, wateringEvent)
+                if (response.isSuccessful && response.body() != null) {
+                    fetchWateringHistory(userPlantId) // Refresh history after adding
+                } else {
+                    // Handle error
+                }
+            } catch (e: Exception) {
+                // Handle exception
+            }
+        }
+    }
+
+    fun updateWateringLog(logId: Long, newWateringDateTime: LocalDateTime, waterAmount: Double) {
+        viewModelScope.launch {
+            try {
+                val response = userPlantService.updateWateringLog(logId, newWateringDateTime, waterAmount)
+                if (response.isSuccessful) {
+                    // Handle successful update
+                    _wateringLogUpdateStatus.value = OperationStatus.Success(response.body()!!)
+                } else {
+                    // Handle error scenario
+                    _wateringLogUpdateStatus.value = OperationStatus.Error(Exception("Failed to update watering log"))
+                }
+            } catch (e: Exception) {
+                _wateringLogUpdateStatus.value = OperationStatus.Error(e)
+            }
+        }
+    }
+
+    fun deleteWateringLog(logId: Long) {
+        viewModelScope.launch {
+            try {
+                val response = userPlantService.deleteWateringHistory(logId)
+                if (response.isSuccessful) {
+                    // Handle successful deletion
+                    _wateringLogDeletionStatus.value = OperationStatus.Success(Unit)
+                } else {
+                    // Handle error scenario
+                    _wateringLogDeletionStatus.value = OperationStatus.Error(Exception("Failed to delete watering log"))
+                }
+            } catch (e: Exception) {
+                _wateringLogDeletionStatus.value = OperationStatus.Error(e)
+            }
+        }
+    }
+
 
 }
 
