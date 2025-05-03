@@ -1,10 +1,8 @@
 package com.plantcare.plantcareassistant.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.plantcare.plantcareassistant.entities.Plant;
-import com.plantcare.plantcareassistant.entities.PlantListResponse;
 import com.plantcare.plantcareassistant.entities.SimplePlant;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class PlantService {
