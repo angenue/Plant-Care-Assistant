@@ -1,6 +1,6 @@
 package com.plantcare.plantcareassistant.repository;
+
 import com.plantcare.plantcareassistant.entities.RecentlySearchedPlants;
-import com.plantcare.plantcareassistant.entities.UserPlant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
