@@ -22,14 +22,12 @@ import java.util.List;
 @RequestMapping("/api/plants")
 public class PlantController {
 
-    private final RestTemplate restTemplate;
     private final PlantService plantService;
     private final UserService userService;
     private final UserPlantService userPlantService;
     private final RecentlySearchedPlantsService recentlySearchedPlantsService;
 
     public PlantController(RestTemplate restTemplate, PlantService plantService, UserService userService, UserPlantService userPlantService, RecentlySearchedPlantsService recentlySearchedPlantsService) {
-        this.restTemplate = restTemplate;
         this.plantService = plantService;
         this.userService = userService;
         this.userPlantService = userPlantService;
